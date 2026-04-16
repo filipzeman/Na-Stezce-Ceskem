@@ -1,10 +1,154 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import FaqAccordion from "../components/FaqAccordion.astro";
+
+// Dummy data - bude nahrazeno databází
+const faqData = {
+  pouzivani: [
+    {
+      question: "Jak používat offline verzi aplikace?",
+      answer:
+        "Aplikace podporuje offline režim. Stačí si stránky načíst předem v prohlížeči. V offline režimu budou dostupné všechny body a itinerář.",
+    },
+    {
+      question: "Jak filtrovat body v itineráři?",
+      answer:
+        "Na stránce itineráře použijte filtry v horní části. Můžete filtrovat podle kategorií jako ubytování, občerstvení nebo navigace.",
+    },
+    {
+      question: "Jak exportovat filtrované body do PDF?",
+      answer:
+        "Po aplikování filtrů klikněte na tlačítko 'Exportovat' v pravém horním rohu. Soubor PDF bude obsahovat všechny zobrazené body.",
+    },
+  ],
+  stezka: [
+    {
+      question: "Jaké boty doporučujete na stezku?",
+      answer:
+        "Doporučujeme kvalitní turistické boty s dobrou podporou kotníků. V létě postačí lehčí trekové boty, v zimě teplejší s membránou proti vodě.",
+    },
+    {
+      question: "Kde se dá přespat podél trasy?",
+      answer:
+        "Podél trasy najdete různé možnosti ubytování - turistické chaty, kempy, hotely a nouzové nocoviště. Všechny body jsou označeny v itineráři.",
+    },
+    {
+      question: "Jak se orientovat na trase?",
+      answer:
+        "Trasa je dobře značená. V aplikaci najdete všechny rozcestníky, milníky a navigaci s barvami trasy. Doporučujeme GPS nebo offline mapy.",
+    },
+  ],
+};
 ---
 
-<BaseLayout title="Blog">
+<BaseLayout title="Časté dotazy">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content container">
+      <h1>Časté dotazy</h1>
+      <p class="subtitle">
+        Najděte odpovědi na nejčastější otázky týkající se aplikace a trasy Orlické hory.
+      </p>
+    </div>
+  </section>
+
   <section class="container">
-    <h1>Časté dotazy</h1>
-    <p>Časté dotazy budou brzy k dispozici.</p>
+    <div class="intro">
+      <p>
+        Zde najdete odpovědi na nejčastější otázky týkající se používání aplikace a informací o
+        trase Orlické hory. Pokud nenajdete odpověď na svou otázku, neváhejte nás kontaktovat.
+      </p>
+      <p>
+        Dotazy jsou rozděleny do dvou sekcí pro lepší přehlednost. Klikněte na otázku pro zobrazení
+        odpovědi.
+      </p>
+    </div>
+
+    <section class="faq-section">
+      <h2>Jak používat web/aplikaci</h2>
+      {
+        faqData.pouzivani.map((item) => (
+          <FaqAccordion question={item.question} answer={item.answer} />
+        ))
+      }
+    </section>
+
+    <section class="faq-section">
+      <h2>Dotazy o stezce</h2>
+      {faqData.stezka.map((item) => <FaqAccordion question={item.question} answer={item.answer} />)}
+    </section>
   </section>
 </BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    height: 30vh;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("/images/hero.jpg");
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.65)
+    ); /* Zvýšený kontrast */
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 600px;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    margin-bottom: 32px;
+    opacity: 0.9;
+  }
+
+  .intro {
+    margin-bottom: var(--space-lg);
+    padding: var(--space-lg) 0; /* Zvětšený padding pro vzdušnost */
+  }
+
+  .intro p {
+    margin-bottom: var(--space-lg); /* Zvětšený vertikální spacing */
+    color: var(--color-text);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left; /* Změna na levý okraj */
+    line-height: 1.7;
+  }
+
+  .faq-section {
+    margin-bottom: var(--space-lg);
+  }
+
+  .faq-section h2 {
+    margin-bottom: var(--space-md);
+    color: var(--color-primary);
+  }
+</style>
