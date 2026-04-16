@@ -25,7 +25,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://orlicke-
 
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
-
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
@@ -44,11 +43,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://orlicke-
     <!-- Additional Meta Tags -->
     <meta name="robots" content="noindex, nofollow" />
     <meta name="author" content="Orlické hory" />
-    <meta name="theme-color" content="#1f3d2b" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0f172a" />
 
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/src/styles/tokens.css" />
     <link rel="stylesheet" href="/src/styles/globals.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
   </head>
 
   <body>
@@ -59,3 +59,38 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://orlicke-
     <Footer />
   </body>
 </html>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js");
+    });
+  }
+</script>
+<script>
+  function showOfflineToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "offline-toast";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  window.addEventListener("load", () => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.ready.then(() => {
+        showOfflineToast("Aplikace je připravena pro offline použití");
+      });
+    }
+  });
+
+  window.addEventListener("offline", () => {
+    showOfflineToast("Jste offline");
+  });
+
+  window.addEventListener("online", () => {
+    showOfflineToast("Zpět online");
+  });
+</script>

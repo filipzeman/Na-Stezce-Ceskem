@@ -21,6 +21,8 @@ if (!points) {
   return null;
 }
 
+console.log("type key", mapKey(typeMap, points[0].type));
+
 const sortedPoints = points
   .map((p) => ({
     ...p,

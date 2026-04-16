@@ -1,6 +1,6 @@
 ---
 import Icon from "./Icon.astro";
-import { getPointIcons } from "../utils/iconMapping";
+import { getPointIcons, getPointTypeIcons } from "../utils/iconMapping";
 import DetailedInfo from "./DetailedInfo.astro";
 import { slugify } from "../utils/slugify.ts";
 import type { Point } from "../types/point";
@@ -13,16 +13,16 @@ const { filter, point, last } = Astro.props as {
 };
 
 const isGroup = Array.isArray((point as LocationGroup).points);
+const isFilteredView = !!filter && filter !== "vse";
+const isDefaultView = !isFilteredView;
 const pointAsPoint = point as Point;
 const pointAsGroup = point as LocationGroup;
 
-const icons = isGroup
-  ? Array.from(
-      new Set(
-        pointAsGroup.points.flatMap((innerPoint) => getPointIcons(innerPoint))
-      )
-    )
-  : getPointIcons(pointAsPoint);
+const icons = getPointIcons(pointAsPoint);
+
+const groupIcons = isGroup
+  ? Array.from(new Set(pointAsGroup.points.flatMap((p) => getPointTypeIcons(p))))
+  : [];
 
 if (!icons.length && !isGroup) {
   return null;
@@ -34,9 +34,7 @@ const displayName = isGroup
   ? pointAsGroup.location_name || pointAsGroup.points[0]?.point_name
   : pointAsPoint.point_name;
 
-const slug = isGroup
-  ? pointAsGroup.location_id
-  : slugify(pointAsPoint.point_name);
+const slug = isGroup ? pointAsGroup.location_id : slugify(pointAsPoint.point_name);
 
 const isNavigation = filter === "navigace" && !isGroup;
 
@@ -51,14 +49,20 @@ function getColor(color: string) {
       return "#1d9405";
     case "žlutá":
       return "#e8c517";
+    // case "cyklo":
+    //   return "#f8c8dc";
     default:
       return "#ddd";
   }
 }
 
+console.log("point", point);
+
 // line color (only for navigation)
 const lineColor =
-  isNavigation && pointAsPoint.navigation_color ? getColor(pointAsPoint.navigation_color) : "#747474";
+  isNavigation && pointAsPoint.navigation_color
+    ? getColor(pointAsPoint.navigation_color)
+    : "#747474";
 ---
 
 <div
@@ -74,22 +78,22 @@ const lineColor =
   <div class={!filter || filter === "vse" ? "content default" : "content"}>
     <a href={`/bod/${slug}`} class="name">
       {displayName}
-      {!isGroup && pointTypeIcon ? (
-        <Icon name={pointTypeIcon} size={18} notInteractive />
-      ) : null}
     </a>
-
     {
-      filter === "ubytovani" || filter === "obcerstveni" ? (
-        <DetailedInfo point={pointAsPoint} />
-      ) : (
-        <div class="icons">
-          {icons.map((icon) => (
+      isGroup ? (
+        <div class="icons-wrapper">
+          {groupIcons.map((icon) => (
             <Icon name={icon} notInteractive />
           ))}
         </div>
+      ) : (
+        <span class="card-header">
+          <Icon name={getPointTypeIcons(point)} size={18} notInteractive />
+        </span>
       )
     }
+
+    {isFilteredView && <DetailedInfo point={pointAsPoint} />}
   </div>
 </div>
 
@@ -171,9 +175,9 @@ const lineColor =
   }
 
   /* ICONS */
-  .icons {
+  .icons-wrapper {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.5rem;
   }
 
   /* optional */
