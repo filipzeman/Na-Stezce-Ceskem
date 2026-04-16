@@ -1,0 +1,92 @@
+---
+const { question, answer } = Astro.props;
+---
+
+<div class="faq-item">
+  <button class="faq-question" aria-expanded="false">
+    <span>{question}</span>
+    <svg class="faq-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M4 6L8 10L12 6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+  </button>
+  <div class="faq-answer" hidden>
+    <div class="faq-content">
+      {answer}
+    </div>
+  </div>
+</div>
+
+<style>
+  .faq-item {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--color-surface);
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-text);
+    transition: background 0.2s ease;
+  }
+
+  .faq-question:hover {
+    background: var(--color-bg);
+  }
+
+  .faq-question:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary);
+  }
+
+  .faq-icon {
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item[aria-expanded="true"] .faq-icon {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    background: var(--color-surface);
+    border-top: 2px solid var(--color-primary); /* Silnější lemování pro lepší spojení */
+  }
+
+  .faq-content {
+    padding: var(--space-md);
+    color: var(--color-text); /* Zvýšený kontrast */
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    faqItems.forEach((item) => {
+      const button = item.querySelector(".faq-question");
+      const answer = item.querySelector(".faq-answer");
+
+      button?.addEventListener("click", () => {
+        const isExpanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", !isExpanded);
+        answer.hidden = isExpanded;
+      });
+    });
+  });
+</script>
