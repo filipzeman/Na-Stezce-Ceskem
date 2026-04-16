@@ -1,14 +1,38 @@
-const CACHE_NAME = "stezka-v1";
+const CACHE_NAME = "stezka-v2";
 
-const STATIC_ASSETS = [
+const CORE_ASSETS = [
   "/",
-  "/itinerar"
+  "/itinerar",
+  "/api/points.json"
 ];
 
-// install
+// install → pre-cache
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(CORE_ASSETS);
+
+      // fetch points data
+      const response = await fetch("/api/points.json");
+      const points = await response.json();
+
+      // cache images
+      const imageUrls = points
+        .flatMap((p) => p.images || [])
+        .filter(Boolean);
+
+      await Promise.all(
+        imageUrls.map((url) =>
+          fetch(url)
+            .then((res) => {
+              if (res.ok) {
+                cache.put(url, res.clone());
+              }
+            })
+            .catch(() => {})
+        )
+      );
+    })
   );
 });
 
@@ -21,33 +45,20 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  // cache-first for images
-  if (request.destination === "image") {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        return (
-          cached ||
-          fetch(request).then((response) => {
+  // cache-first for everything
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      return (
+        cached ||
+        fetch(request)
+          .then((response) => {
             return caches.open(CACHE_NAME).then((cache) => {
               cache.put(request, response.clone());
               return response;
             });
           })
-        );
-      })
-    );
-    return;
-  }
-
-  // network-first for pages
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, response.clone());
-          return response;
-        });
-      })
-      .catch(() => caches.match(request))
+          .catch(() => cached)
+      );
+    })
   );
 });
