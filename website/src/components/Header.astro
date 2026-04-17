@@ -10,7 +10,8 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
 <header class="header">
   <div class="inner">
     <div class="header-actions">
-      <div><a href="/" class="logo">Na Stezce Českem</a>
+      <a href="/" class="logo">Na Stezce Českem</a>
+
       <div class="header-status">
         <div class="connection-status" id="connection-status">
           <svg
@@ -27,8 +28,7 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
           </svg>
           <span class="status-text">Online</span>
         </div>
-      </div></div>
-      
+      </div>
 
       <button class="menu-toggle" aria-expanded="false" aria-controls="nav">
         <Icon name="SquareMenu" noBackground size={26} />
@@ -47,12 +47,33 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
     </nav>
   </div>
   <script>
-    const toggle = document.querySelector(".menu-toggle");
-    const nav = document.querySelector(".nav");
+    // Mobile menu toggle
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("Header script loaded");
+      const toggle = document.querySelector(".menu-toggle");
+      const nav = document.querySelector(".nav");
 
-    toggle?.addEventListener("click", () => {
-      const isOpen = nav?.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      console.log("Toggle element:", toggle);
+      console.log("Nav element:", nav);
+
+      if (toggle && nav) {
+        toggle.addEventListener("click", (e) => {
+          e.preventDefault();
+          console.log("Menu toggle clicked");
+          const isOpen = nav.classList.toggle("open");
+          console.log("Menu open:", isOpen);
+          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+
+          // Visual feedback
+          if (isOpen) {
+            toggle.classList.add("active");
+          } else {
+            toggle.classList.remove("active");
+          }
+        });
+      } else {
+        console.error("Menu toggle or nav elements not found");
+      }
     });
 
     // Connection status indicator
@@ -99,11 +120,9 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
     .header {
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 200; /* Above install banner (z-index: 50) */
       background: white;
       border-bottom: 1px solid #eee;
-      /* justify-content: center;
-      display: flex; */
     }
 
     .inner {
@@ -124,43 +143,28 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
 
     .header-actions {
       display: flex;
-      width: 100%;
-      justify-content: space-between;
       align-items: center;
+      gap: 12px;
+      width: 100%;
 
       @media (min-width: 768px) {
         width: auto;
+        gap: 16px;
       }
     }
 
-    .logo {
-      font-weight: 600;
-      text-decoration: none;
-      color: inherit;
-      white-space: nowrap;
+    .header-status {
       margin-left: auto;
-      margin-right: 1rem;
-    }
+      order: 1;
 
-    .menu-toggle {
-      background: none;
-      border: none;
-      display: flex;
-      font-size: 1.2rem;
-      cursor: pointer;
-      width: 42px;
-      height: 42px;
-
-      svg {
-        stroke: black;
+      @media (min-width: 768px) {
+        order: 0;
+        margin-left: 0;
+        margin-right: auto;
       }
     }
 
-    .header-status {  
-      display: inline-flex;
-      }
-
-      .connection-status {
+    .connection-status {
       display: flex;
       align-items: center;
       gap: 4px;
@@ -193,15 +197,57 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
     .status-text {
       font-weight: 500;
     }
+
+    .logo {
+      font-weight: 600;
+      text-decoration: none;
+      color: inherit;
+      white-space: nowrap;
+      order: 0;
     }
 
-  
+    .menu-toggle {
+      background: none;
+      border: none;
+      display: flex;
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 42px;
+      height: 42px;
+      order: 2;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+
+      svg {
+        stroke: black;
+        transition: stroke 0.2s;
+      }
+
+      &:hover {
+        background: var(--color-bg-hover);
+      }
+
+      &.active {
+        background: var(--color-primary);
+        svg {
+          stroke: white;
+        }
+      }
+    }
 
     /* Mobile nav */
     .nav {
-      display: none;
+      display: none; /* Hidden by default on mobile */
       flex-direction: column;
       background: white;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--color-border);
+      padding: 1rem;
     }
 
     .nav a {
@@ -237,14 +283,22 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
 
       .nav {
         display: flex !important;
-        flex-direction: row;
+        flex-direction: row !important;
         gap: 1.5rem;
-        padding: 0;
+        padding: 0 !important;
+        position: static !important; /* Reset mobile positioning */
+        box-shadow: none !important; /* Reset mobile shadow */
+        border-top: none !important; /* Reset mobile border */
+        background: transparent !important; /* Reset mobile background */
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        z-index: auto !important;
       }
 
       .nav a {
-        border: none;
-        padding: 0;
+        border: none !important;
+        padding: 0 !important;
       }
     }
 
