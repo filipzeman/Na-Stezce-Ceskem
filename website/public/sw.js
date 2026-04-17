@@ -45,20 +45,30 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  // cache-first for everything
   event.respondWith(
-    caches.match(request).then((cached) => {
-      return (
-        cached ||
-        fetch(request)
-          .then((response) => {
-            return caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, response.clone());
-              return response;
-            });
-          })
-          .catch(() => cached)
-      );
-    })
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      const cached = await cache.match(request);
+
+      if (cached) {
+        return cached;
+      }
+
+      try {
+        const response = await fetch(request);
+
+        cache.put(request, response.clone());
+
+        return response;
+      } catch (err) {
+        // 🔥 THIS is the fix
+        if (request.mode === "navigate") {
+          return cache.match("/") || new Response("Offline");
+        }
+
+        return new Response("", { status: 503 });
+      }
+    })()
   );
 });
