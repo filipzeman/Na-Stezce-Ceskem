@@ -3,6 +3,13 @@ const CACHE_NAME = "stezka-v2";
 const CORE_ASSETS = [
   "/",
   "/itinerar",
+  "/itinerar?filtr=vse",
+  "/itinerar?filtr=ubytovani",
+  "/itinerar?filtr=obcerstveni",
+  "/itinerar?filtr=navigace",
+  "/itinerar?filtr=doprava",
+  "/itinerar?filtr=turisticke_cile",
+  "/itinera?filtr=ostatni",
   "/api/points.json"
 ];
 

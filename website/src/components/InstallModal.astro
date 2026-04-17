@@ -1,0 +1,293 @@
+---
+// InstallModal.astro - Modal s instrukcemi pro PWA instalaci (mobile-first)
+---
+
+<div class="modal-overlay" id="install-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Jak nainstalovat aplikaci</h3>
+      <button class="modal-close" onclick="closeInstallModal()" aria-label="Zavřít">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="instruction-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <strong>Klikněte na tlačítko instalace</strong>
+          <p>V prohlížeči najdete ikonu pro instalaci v adresním řádku nebo menu</p>
+        </div>
+      </div>
+
+      <div class="instruction-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <strong>Vyberte "Přidat na domovskou obrazovku"</strong>
+          <p>Potvrďte instalaci - aplikace se přidá mezi vaše aplikace</p>
+        </div>
+      </div>
+
+      <div class="instruction-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <strong>Otevřete aplikaci</strong>
+          <p>Funguje i bez internetu - všechny body jsou uložené</p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeInstallModal()">Zavřít</button>
+        <button class="btn btn-primary" onclick="tryInstallPWA()">Zkusit nainstalovat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 16px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    background: white;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  .modal-close:hover {
+    background-color: var(--color-bg-hover);
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .instruction-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+
+  .instruction-step:last-child {
+    margin-bottom: 24px;
+  }
+
+  .step-number {
+    width: 28px;
+    height: 28px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .step-content strong {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
+  .step-content p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 14px;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-primary-hover, #0d4a2d);
+  }
+
+  .btn-secondary {
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-bg-hover);
+  }
+
+  /* Mobile-first responsive */
+  @media (max-width: 480px) {
+    .modal-overlay {
+      padding: 12px;
+    }
+
+    .modal {
+      max-width: none;
+      border-radius: 8px;
+    }
+
+    .modal-header {
+      padding: 16px 16px 12px;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+    }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .instruction-step {
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+    }
+
+    .step-content strong {
+      font-size: 14px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+    }
+
+    .modal-actions {
+      flex-direction: column-reverse;
+      gap: 8px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+    }
+  }
+</style>
+
+<script>
+  function showInstallModal() {
+    const modal = document.getElementById("install-modal");
+    if (modal) {
+      modal.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  function closeInstallModal() {
+    const modal = document.getElementById("install-modal");
+    if (modal) {
+      modal.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+  }
+
+  function tryInstallPWA() {
+    // Try to trigger browser's install prompt
+    if ("beforeinstallprompt" in window) {
+      // This would be handled by a global event listener
+      window.dispatchEvent(new Event("tryInstall"));
+    } else {
+      // Fallback - show message
+      alert("Pro instalaci použijte tlačítko v prohlížeči (obvykle v adresním řádku)");
+    }
+    closeInstallModal();
+  }
+
+  // Close on overlay click
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("install-modal");
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          closeInstallModal();
+        }
+      });
+    }
+  });
+
+  // Make functions global for onclick handlers
+  window.showInstallModal = showInstallModal;
+  window.closeInstallModal = closeInstallModal;
+  window.tryInstallPWA = tryInstallPWA;
+</script>

@@ -1,0 +1,402 @@
+---
+// Blog článek o PWA instalaci a offline režimu
+---
+
+<BaseLayout title="Jak si uložit web jako aplikaci a používat offline | Blog">
+  <article class="blog-post">
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="2026-04-16">16. dubna 2026</time>
+        <span class="category">Návod</span>
+      </div>
+      <h1>Jak si uložit web jako aplikaci a používat offline</h1>
+      <p class="post-excerpt">
+        Praktický průvodce instalací PWA aplikace pro offline použití při turistice v Orlických
+        horách.
+      </p>
+    </header>
+
+    <div class="post-content">
+      <section class="content-section">
+        <h2>Proč instalovat aplikaci?</h2>
+        <p>
+          Při turistice v Orlických horách je spolehlivý přístup k informacím klíčový. Offline
+          aplikace vám zajistí, že budete mít všechny potřebné informace k dispozici i bez
+          internetového připojení, které v horách nemusí být vždy stabilní.
+        </p>
+
+        <div class="highlight-box">
+          <strong>✅ Co získáte:</strong>
+          <ul>
+            <li>Rychlý přístup z domovské obrazovky</li>
+            <li>Funguje bez internetu</li>
+            <li>Automatické aktualizace</li>
+            <li>Stejné funkce jako webová verze</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Jak nainstalovat aplikaci</h2>
+
+        <h3>Mobilní zařízení (Android/iOS)</h3>
+        <ol class="instruction-list">
+          <li>
+            <strong>Otevřete web v prohlížeči</strong><br />
+            Použijte Chrome, Safari nebo jiný moderní prohlížeč
+          </li>
+          <li>
+            <strong>Klikněte na tlačítko "Sdílet"</strong><br />
+            Najděte ikonu se šipkou nahoru nebo třemi tečkami
+          </li>
+          <li>
+            <strong>Vyberte "Přidat na domovskou obrazovku"</strong><br />
+            Potvrďte instalaci
+          </li>
+          <li>
+            <strong>Aplikace je připravena</strong><br />
+            Najdete ji mezi ostatními aplikacemi
+          </li>
+        </ol>
+
+        <h3>Počítač (Windows/Mac/Linux)</h3>
+        <ol class="instruction-list">
+          <li>
+            <strong>Otevřete web v Chrome nebo Edge</strong><br />
+            Firefox zatím PWA plně nepodporuje
+          </li>
+          <li>
+            <strong>Hledejte ikonu instalace</strong><br />
+            V adresním řádku nebo v menu prohlížeče
+          </li>
+          <li>
+            <strong>Klikněte na "Instalovat aplikaci"</strong><br />
+            Nebo "Přidat na plochu"
+          </li>
+          <li>
+            <strong>Aplikace se otevře v novém okně</strong><br />
+            Můžete ji připnout na hlavní panel
+          </li>
+        </ol>
+      </section>
+
+      <section class="content-section">
+        <h2>Co funguje offline</h2>
+        <p>
+          Aplikace automaticky cachuje všechny potřebné data při prvním načtení. V offline režimu
+          máte k dispozici:
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-item">
+            <div class="feature-icon">✅</div>
+            <div>
+              <strong>Kompletní itinerář</strong><br />
+              Všechny body na trase s detaily
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">✅</div>
+            <div>
+              <strong>Filtrování bodů</strong><br />
+              Ubytování, občerstvení, doprava
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">✅</div>
+            <div>
+              <strong>Obrázky bodů</strong><br />
+              Pokud byly načtené předem
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">❌</div>
+            <div>
+              <strong>Nové obrázky</strong><br />
+              Vyžaduje internetové připojení
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Jak aplikace funguje offline</h2>
+        <p>
+          <strong>Service Worker</strong> je technologie, která umožňuje webovým aplikacím fungovat offline.
+          Automaticky stahuje a ukládá data do prohlížeče.
+        </p>
+
+        <h3>Proces načítání:</h3>
+        <ol>
+          <li><strong>První návštěva:</strong> Stahují se všechna data a obrázky</li>
+          <li><strong>Offline režim:</strong> Aplikace funguje z cache</li>
+          <li><strong>Online návrat:</strong> Automaticky se synchronizují změny</li>
+        </ol>
+
+        <div class="tip-box">
+          <strong>💡 Tip:</strong> Před výletem si aplikaci otevřete na Wi-Fi, aby se všechna data stáhla.
+          Pak funguje spolehlivě offline.
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Řešení problémů</h2>
+
+        <h3>Aplikace se nenabízí k instalaci</h3>
+        <p>
+          Ujistěte se, že používáte podporovaný prohlížeč (Chrome, Edge, Safari). Na iOS musí být
+          stránka přidána přes "Sdílet" → "Přidat na domovskou obrazovku".
+        </p>
+
+        <h3>Data se nenačítá offline</h3>
+        <p>
+          Vymažte cache prohlížeče a načtěte aplikaci znovu s internetem. Service Worker potřebuje
+          první načtení s připojením.
+        </p>
+
+        <h3>Aplikace nejde spustit</h3>
+        <p>
+          Zkontrolujte, zda je Service Worker registrovaný. V DevTools (F12) → Application → Service
+          Workers.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>Výhody pro turisty</h2>
+        <p>Offline aplikace je ideální pro hiking z několika důvodů:</p>
+
+        <ul>
+          <li><strong>Spolehlivost:</strong> Žádné výpadky signálu vás nepřekvapí</li>
+          <li><strong>Baterie:</strong> Méně datových přenosů šetří baterii</li>
+          <li><strong>Rychlost:</strong> Okamžité načítání bez latence</li>
+          <li><strong>Dostupnost:</strong> Funguje i v místech bez signálu</li>
+        </ul>
+      </section>
+    </div>
+
+    <footer class="post-footer">
+      <div class="share-section">
+        <h3>Sdílet článek</h3>
+        <div class="share-buttons">
+          <button onclick="shareArticle()" class="share-btn">Sdílet</button>
+        </div>
+      </div>
+
+      <div class="related-posts">
+        <h3>Související články</h3>
+        <ul>
+          <li><a href="/blog">Všechny články</a></li>
+          <li><a href="/caste-dotazy">Časté dotazy</a></li>
+        </ul>
+      </div>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  function shareArticle() {
+    if (navigator.share) {
+      navigator.share({
+        title: "Jak si uložit web jako aplikaci a používat offline",
+        text: "Praktický průvodce instalací PWA aplikace pro offline použití při turistice v Orlických horách.",
+        url: window.location.href,
+      });
+    } else {
+      // Fallback - copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert("Odkaz zkopírován do schránky");
+    }
+  }
+</script>
+
+<style>
+  .blog-post {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .post-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .post-meta {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .category {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+
+  .post-header h1 {
+    font-size: 2.5rem;
+    margin: 1rem 0;
+    line-height: 1.2;
+  }
+
+  .post-excerpt {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .content-section {
+    margin-bottom: 3rem;
+  }
+
+  .content-section h2 {
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+
+  .content-section h3 {
+    margin: 2rem 0 1rem;
+    font-size: 1.4rem;
+  }
+
+  .highlight-box {
+    background: #f0f9f0;
+    border: 1px solid #d0e7d0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .highlight-box strong {
+    color: var(--color-primary);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .instruction-list {
+    margin: 1.5rem 0;
+  }
+
+  .instruction-list li {
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-primary);
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .instruction-list strong {
+    color: var(--color-primary);
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+
+  .feature-icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+  }
+
+  .tip-box {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .post-footer {
+    border-top: 1px solid var(--color-border);
+    padding-top: 2rem;
+    margin-top: 3rem;
+  }
+
+  .share-section,
+  .related-posts {
+    margin-bottom: 2rem;
+  }
+
+  .share-section h3,
+  .related-posts h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+
+  .share-btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .related-posts ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .related-posts li {
+    margin-bottom: 0.5rem;
+  }
+
+  .related-posts a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .related-posts a:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile-first responsive */
+  @media (max-width: 768px) {
+    .blog-post {
+      padding: 1rem;
+    }
+
+    .post-header h1 {
+      font-size: 2rem;
+    }
+
+    .post-excerpt {
+      font-size: 1.1rem;
+    }
+
+    .feature-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .post-meta {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+</style>

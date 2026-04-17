@@ -1,0 +1,191 @@
+---
+// InstallBanner.astro - Mobile-first banner pro PWA instalaci
+---
+
+<div class="install-banner" id="install-banner">
+  <div class="banner-content">
+    <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7,10 12,15 17,10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    <div class="banner-text">
+      <strong>Nainstalujte aplikaci pro offline</strong>
+      <span>Přístup k itineráři bez internetu</span>
+    </div>
+    <button class="banner-btn" onclick="showInstallModal()">Jak na to</button>
+    <button class="banner-close" onclick="hideInstallBanner()" aria-label="Zavřít">×</button>
+  </div>
+</div>
+
+<style>
+  .install-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-primary);
+    color: white;
+    padding: 8px 16px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .banner-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .banner-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .banner-text strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .banner-text span {
+    display: block;
+    opacity: 0.9;
+    font-size: 13px;
+  }
+
+  .banner-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .banner-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .banner-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+    opacity: 0.8;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .banner-close:hover {
+    opacity: 1;
+  }
+
+  /* Mobile-first responsive */
+  @media (max-width: 480px) {
+    .install-banner {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+
+    .banner-content {
+      gap: 6px;
+    }
+
+    .banner-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .banner-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .banner-close {
+      font-size: 18px;
+      margin-left: 4px;
+    }
+  }
+
+  /* Hidden by default, shown via JS */
+  .install-banner {
+    display: none;
+  }
+
+  .install-banner.show {
+    display: block;
+  }
+</style>
+
+<script>
+  // Show banner only if not installed and on mobile/tablet
+  function initInstallBanner() {
+    const banner = document.getElementById("install-banner");
+    if (!banner) return;
+
+    // Check if already installed (PWA)
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    // Show only on mobile/tablet and if not installed
+    const isMobile = window.innerWidth < 768;
+
+    if (!isStandalone && isMobile) {
+      banner.classList.add("show");
+
+      // Auto-hide after 30 seconds
+      setTimeout(() => {
+        if (banner.classList.contains("show")) {
+          hideInstallBanner();
+        }
+      }, 30000);
+    }
+  }
+
+  function hideInstallBanner() {
+    const banner = document.getElementById("install-banner");
+    if (banner) {
+      banner.classList.remove("show");
+      // Remember user dismissed it
+      localStorage.setItem("install-banner-dismissed", Date.now().toString());
+    }
+  }
+
+  // Check if user dismissed recently (within 24 hours)
+  function shouldShowBanner() {
+    const dismissed = localStorage.getItem("install-banner-dismissed");
+    if (!dismissed) return true;
+
+    const dismissedTime = parseInt(dismissed);
+    const now = Date.now();
+    const hoursSinceDismissed = (now - dismissedTime) / (1000 * 60 * 60);
+
+    return hoursSinceDismissed > 24;
+  }
+
+  // Initialize on load
+  document.addEventListener("DOMContentLoaded", () => {
+    if (shouldShowBanner()) {
+      initInstallBanner();
+    }
+  });
+</script>
