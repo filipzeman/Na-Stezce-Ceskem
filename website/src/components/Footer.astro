@@ -1,33 +1,184 @@
+---
+import Icon from "./Icon.astro";
+---
+
 <footer class="footer">
-  <div class="inner">
-    <div class="left">
-      <strong>Orlické hory</strong>
-      <p>Digitální průvodce etapou Stezky Českem.</p>
+  <div class="footer-inner">
+    <!-- LEFT: brand -->
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <span class="logo-text">Na stezce českem</span>
+        <a href="/co-vylepsit" class="version">v 0.9</a>
+      </div>
+
+      <p class="footer-subtitle">Průvodce po Stezce Českem. Plánuj, objevuj, jdi.</p>
     </div>
 
-    <div class="right">
-      <a href="/o-projektu" target="_blank">O projektu</a>
-      <a href="/admin" target="_blank">Administrace</a>
-      <p>© {new Date().getFullYear()}</p>
+    <!-- RIGHT: navigation -->
+    <nav class="footer-nav">
+      <a href="/">Domů</a>
+      <a href="/itinerar">Itinerář</a>
+      <a href="/faq">FAQ</a>
+      <a href="/o-projektu">O projektu</a>
+      <a href="/co-vylepsit">Zpětná vazba</a>
+    </nav>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="footer-bottom">
+    <div class="footer-actions">
+      <a href="mailto:info@stezkaceskem.cz" class="btn btn-secondary"> Kontakt</a>
+
+      <a href="/co-vylepsit" class="btn btn-primary"> Zpětná vazba</a>
+    </div>
+
+    <div class="footer-social">
+      <a href="#" class="icon-btn">
+        <Icon name="Facebook" aria-label="Facebook">
+          <span class="icon">f</span>
+        </Icon>
+      </a>
+
+      <a href="#" class="icon-btn">
+        <Icon name="Instagram" aria-label="Instagram">
+          <span class="icon">i</span>
+        </Icon>
+      </a>
     </div>
   </div>
 </footer>
 
 <style>
   .footer {
-    background: var(--color-light);
-    border-top: 1px solid #e5e5e5;
-    margin-top: 4rem;
+    margin-top: 40px;
+    padding: 24px 16px 16px;
+
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+
+    font-size: 0.9rem;
   }
 
-  .inner {
-    max-width: var(--max-width);
+  /* TOP */
+  .footer-inner {
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+
     display: flex;
-    justify-content: space-between;
-    gap: 2rem;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 768px) {
+    .footer-inner {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+
+  /* BRAND */
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-text {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .version {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    background: var(--color-border);
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+  }
+
+  .footer-subtitle {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  /* NAV */
+  .footer-nav {
+    display: flex;
     flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .footer-nav a {
+    text-decoration: none;
+    color: var(--color-text-muted);
     font-size: 0.9rem;
+  }
+
+  .footer-nav a:hover {
+    color: var(--color-primary);
+  }
+
+  /* BOTTOM */
+  .footer-bottom {
+    max-width: 1100px;
+    margin: 16px auto 0;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    border-top: 1px solid var(--color-border);
+    padding-top: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .footer-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+      /* align-items: center; */
+    }
+  }
+
+  /* ACTIONS */
+  .footer-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* SOCIAL */
+  .footer-social {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* .icon-btn {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+
+    text-decoration: none;
+    color: var(--color-text-muted);
+
+    transition: all 0.2s;
+  }
+  */
+  .icon-btn:hover {
+    svg {
+      stroke: var(--color-primary) !important;
+    }
+  }
+
+  /* TEMP ICON TEXT */
+  .icon {
+    font-size: 0.7rem;
   }
 </style>

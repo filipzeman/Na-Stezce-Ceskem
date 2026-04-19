@@ -1,0 +1,139 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Zpětná vazba">
+  <section class="container">
+    <div class="feedback-container">
+      <h1>Zpětná vazba</h1>
+
+      <p class="intro">
+        Máš tip, co zlepšit? Něco nefunguje? Nebo se ti něco líbí? Budeme rádi za jakoukoli zpětnou
+        vazbu.
+      </p>
+
+      <form id="feedback-form" class="form">
+        <label>Zpráva</label>
+        <textarea name="message" required placeholder="Napiš nám svůj názor…"></textarea>
+
+        <label>Email (volitelné)</label>
+        <input type="email" name="email" placeholder="Pokud chceš odpověď" />
+
+        <p class="note">E-mail je dobrovolný a použijeme ho pouze pro případnou odpověď.</p>
+
+        <button type="submit" class="btn btn-primary"> Odeslat</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- CLIENT -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+    const supabase = createClient(
+      import.meta.env.PUBLIC_SUPABASE_URL,
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    const form = document.getElementById("feedback-form");
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      const message = formData.get("message");
+      const email = formData.get("email");
+
+      if (!message) return;
+
+      const { error } = await supabase.from("feedback").insert({
+        message,
+        email: email || null,
+      });
+
+      if (error) {
+        showToast("❌ Nepodařilo se odeslat");
+        return;
+      }
+
+      form.reset();
+      showToast("✅ Děkujeme za zpětnou vazbu");
+    });
+
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = message;
+
+      document.body.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
+
+  <style>
+    .feedback-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1 {
+      margin-bottom: 4px;
+    }
+
+    .intro {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input,
+    textarea {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+
+      background: var(--color-primary);
+      color: white;
+
+      padding: 10px 14px;
+      border-radius: 8px;
+
+      font-size: 0.85rem;
+      z-index: 9999;
+    }
+  </style>
+</BaseLayout>

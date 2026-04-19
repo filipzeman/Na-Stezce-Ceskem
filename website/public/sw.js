@@ -69,7 +69,7 @@ const CORE_ASSETS = [
   "/bod/vrchmezi",
   "/bod/rozcestnik-k-prameni-bele",
   "/bod/rozcestnik-polomsky-kopec"
-  // __DETAIL_PAGES__
+
 ];
 
 // install → pre-cache

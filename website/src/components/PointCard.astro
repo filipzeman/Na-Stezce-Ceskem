@@ -13,6 +13,8 @@ const { filter, point, last } = Astro.props as {
 };
 
 const isGroup = Array.isArray((point as LocationGroup).points);
+const hasLocation = point.location_id;
+console.log("isGroup", isGroup);
 const isFilteredView = !!filter && filter !== "vse";
 const isDefaultView = !isFilteredView;
 const pointAsPoint = point as Point;
@@ -34,7 +36,8 @@ const displayName = isGroup
   ? pointAsGroup.location_name || pointAsGroup.points[0]?.point_name
   : pointAsPoint.point_name;
 
-const slug = isGroup ? pointAsGroup.location_id : slugify(pointAsPoint.point_name);
+const slug = isGroup || hasLocation ? pointAsGroup.location_id : slugify(pointAsPoint.point_name);
+console.log("slug", slug);
 
 const isNavigation = filter === "navigace" && !isGroup;
 

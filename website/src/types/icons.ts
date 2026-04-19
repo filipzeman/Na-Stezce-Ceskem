@@ -42,4 +42,6 @@ export type IconName =
   | "Stamp"
   | "Package"
   | "Mail"
-  | "BadgeEuro";
+  | "BadgeEuro"
+  | "Facebook"
+  | "Instagram";
