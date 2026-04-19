@@ -55,25 +55,39 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-
       const cached = await cache.match(request);
 
+      // Pokud je v cache přesná shoda, vrať ji
       if (cached) {
         return cached;
       }
 
+      // Pokud je navigační požadavek (HTML stránka)
+      if (request.mode === "navigate") {
+        // Zkus najít stránku bez query parametrů
+        const url = new URL(request.url);
+        const pathname = url.pathname;
+
+        // 1. Zkus přesnou shodu bez search
+        const matchNoSearch = await cache.match(pathname, { ignoreSearch: true });
+        if (matchNoSearch) {
+          return matchNoSearch;
+        }
+        // 2. Zkus fallback na root
+        const fallback = await cache.match("/");
+        if (fallback) {
+          return fallback;
+        }
+        // 3. Jinak prázdná odpověď
+        return new Response("Offline", { status: 503, statusText: "Offline" });
+      }
+
+      // Ostatní požadavky (např. obrázky, data)
       try {
         const response = await fetch(request);
-
         cache.put(request, response.clone());
-
         return response;
       } catch (err) {
-        // 🔥 THIS is the fix
-        if (request.mode === "navigate") {
-          return cache.match("/") || new Response("Offline");
-        }
-
         return new Response("", { status: 503 });
       }
     })()

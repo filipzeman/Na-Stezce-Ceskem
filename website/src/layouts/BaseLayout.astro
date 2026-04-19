@@ -54,9 +54,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://orlicke-
   </head>
 
   <body>
+    <Header />
     <InstallBanner />
     <InstallModal />
-    <Header />
     <main class="page">
       <slot />
     </main>

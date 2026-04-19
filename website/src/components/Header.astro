@@ -227,6 +227,11 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
         background: var(--color-bg-hover);
       }
 
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
+
       &.active {
         background: var(--color-primary);
         svg {

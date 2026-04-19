@@ -14,23 +14,30 @@
       <span>Přístup k itineráři bez internetu</span>
     </div>
     <button class="banner-btn" onclick="showInstallModal()">Jak na to</button>
-    <button class="banner-close" onclick="hideInstallBanner()" aria-label="Zavřít">×</button>
+    <button class="banner-close" id="banner-close-btn" aria-label="Zavřít">×</button>
   </div>
 </div>
 
 <style>
   .install-banner {
-    position: fixed;
-    top: 0;
+    position: sticky;
+    top: var(--header-height, 56px);
     left: 0;
     right: 0;
     background: var(--color-primary);
     color: white;
     padding: 8px 16px;
-    z-index: 50; /* Below header (z-index: 100) */
+    z-index: 140; /* Nad obsahem, pod headerem pokud má vyšší z-index */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     font-size: 14px;
     line-height: 1.4;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .install-banner {
+      top: var(--header-height-desktop, 66px);
+    }
   }
 
   .banner-content {
@@ -85,15 +92,40 @@
     background: none;
     border: none;
     color: white;
-    font-size: 20px;
+    font-size: 32px;
     cursor: pointer;
-    padding: 0;
+    padding: 8px 16px;
     margin-left: 8px;
     opacity: 0.8;
     flex-shrink: 0;
     line-height: 1;
+    border-radius: 8px;
+    transition: background 0.2s;
+    touch-action: manipulation;
   }
+  .banner-close:active,
+  .banner-close:focus {
+    background: rgba(255, 255, 255, 0.15);
+    outline: none;
+  }
+</style>
 
+<script>
+  // Zavření banneru kliknutím na křížek
+  if (typeof window !== "undefined") {
+    window.addEventListener("DOMContentLoaded", () => {
+      const closeBtn = document.getElementById("banner-close-btn");
+      const banner = document.getElementById("install-banner");
+      if (closeBtn && banner) {
+        closeBtn.addEventListener("click", () => {
+          banner.style.display = "none";
+        });
+      }
+    });
+  }
+</script>
+
+<style>
   .banner-close:hover {
     opacity: 1;
   }
@@ -133,6 +165,10 @@
   .install-banner.show {
     display: block;
   }
+  :root {
+    --header-height: 56px;
+    --header-height-desktop: 66px;
+  }
 </style>
 
 <script>
@@ -147,7 +183,7 @@
       window.navigator.standalone === true;
 
     // Show only on mobile/tablet and if not installed
-    const isMobile = window.innerWidth < 768;
+    const isMobile = true;
 
     if (!isStandalone && isMobile) {
       banner.classList.add("show");
