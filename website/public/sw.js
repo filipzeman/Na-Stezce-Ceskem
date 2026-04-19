@@ -9,25 +9,23 @@ const CORE_ASSETS = [
   "/itinerar?filtr=navigace",
   "/itinerar?filtr=doprava",
   "/itinerar?filtr=turisticke_cile",
-  "/itinera?filtr=ostatni",
+  "/itinerar?filtr=ostatni",
   "/api/points.json"
 ];
 
 // install → pre-cache
 self.addEventListener("install", (event) => {
+  self.skipWaiting(); // Okamžitě aktivovat nový SW
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       await cache.addAll(CORE_ASSETS);
-
       // fetch points data
       const response = await fetch("/api/points.json");
       const points = await response.json();
-
       // cache images
       const imageUrls = points
         .flatMap((p) => p.images || [])
         .filter(Boolean);
-
       await Promise.all(
         imageUrls.map((url) =>
           fetch(url)
@@ -56,32 +54,33 @@ self.addEventListener("fetch", (event) => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(request);
-
-      // Pokud je v cache přesná shoda, vrať ji
       if (cached) {
         return cached;
       }
-
-      // Pokud je navigační požadavek (HTML stránka)
+      // Navigační požadavky (HTML stránky)
       if (request.mode === "navigate") {
-        // Zkus najít stránku bez query parametrů
         const url = new URL(request.url);
         const pathname = url.pathname;
-
-        // 1. Zkus přesnou shodu bez search
-        const matchNoSearch = await cache.match(pathname, { ignoreSearch: true });
+        // Zkus přesnou shodu bez search
+        let matchNoSearch = await cache.match(pathname, { ignoreSearch: true });
+        if (!matchNoSearch && pathname.endsWith("/")) {
+          // Zkus bez trailing slash
+          matchNoSearch = await cache.match(pathname.slice(0, -1), { ignoreSearch: true });
+        }
+        if (!matchNoSearch && !pathname.endsWith("/")) {
+          // Zkus s trailing slash
+          matchNoSearch = await cache.match(pathname + "/", { ignoreSearch: true });
+        }
         if (matchNoSearch) {
           return matchNoSearch;
         }
-        // 2. Zkus fallback na root
+        // Fallback na root
         const fallback = await cache.match("/");
         if (fallback) {
           return fallback;
         }
-        // 3. Jinak prázdná odpověď
         return new Response("Offline", { status: 503, statusText: "Offline" });
       }
-
       // Ostatní požadavky (např. obrázky, data)
       try {
         const response = await fetch(request);
