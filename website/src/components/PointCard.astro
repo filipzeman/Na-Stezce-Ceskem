@@ -71,6 +71,8 @@ const lineColor =
 <div
   class={`item ${isNavigation ? "navigation" : ""} ${last ? "last" : ""}`}
   style={`--line-color: ${lineColor}`}
+  data-lat={isGroup ? pointAsGroup.points[0]?.latitude : pointAsPoint.latitude}
+  data-lng={isGroup ? pointAsGroup.points[0]?.longitude : pointAsPoint.longitude}
 >
   <!-- KM -->
   <div class=`km ${isNavigation ? "no-accent" : ""}`>
