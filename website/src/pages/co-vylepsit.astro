@@ -2,6 +2,13 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
+<script>
+  window.ENV = {
+    SUPABASE_URL: import.meta.env.PUBLIC_SUPABASE_URL,
+    SUPABASE_KEY: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  };
+</script>
+
 <BaseLayout title="Zpětná vazba">
   <section class="container">
     <div class="feedback-container">
@@ -12,7 +19,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         vazbu.
       </p>
 
-      <form id="feedback-form" class="form">
+      <form id="feedback-form" class="form" onsubmit="return false;">
         <label>Zpráva</label>
         <textarea name="message" required placeholder="Napiš nám svůj názor…"></textarea>
 
@@ -30,46 +37,54 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
-    const supabase = createClient(
-      import.meta.env.PUBLIC_SUPABASE_URL,
-      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
-    );
+    window.addEventListener("DOMContentLoaded", () => {
+      const supabase = createClient(window.ENV.SUPABASE_URL, window.ENV.SUPABASE_KEY);
 
-    const form = document.getElementById("feedback-form");
+      const form = document.getElementById("feedback-form");
 
-    form?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+      if (!form) return;
 
-      const formData = new FormData(form);
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-      const message = formData.get("message");
-      const email = formData.get("email");
+        const formData = new FormData(form);
 
-      if (!message) return;
+        const message = formData.get("message");
+        const email = formData.get("email");
 
-      const { error } = await supabase.from("feedback").insert({
-        message,
-        email: email || null,
+        if (!message) return;
+
+        const { error } = await supabase.from("feedback").insert({
+          message,
+          email: email || null,
+        });
+
+        if (error) {
+          showToast("Nepodařilo se odeslat");
+          return;
+        }
+
+        form.reset();
+        showToast("Děkujeme za zpětnou vazbu");
       });
 
-      if (error) {
-        showToast("❌ Nepodařilo se odeslat");
-        return;
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.classList.add("hide");
+
+          // wait for animation to finish
+          setTimeout(() => {
+            toast.remove();
+          }, 500);
+        }, 3000);
       }
-
-      form.reset();
-      showToast("✅ Děkujeme za zpětnou vazbu");
     });
-
-    function showToast(message) {
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.textContent = message;
-
-      document.body.appendChild(toast);
-
-      setTimeout(() => toast.remove(), 3000);
-    }
   </script>
 
   <style>
@@ -119,21 +134,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     .note {
       font-size: 0.8rem;
       color: var(--color-text-muted);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-
-      background: var(--color-primary);
-      color: white;
-
-      padding: 10px 14px;
-      border-radius: 8px;
-
-      font-size: 0.85rem;
-      z-index: 9999;
     }
   </style>
 </BaseLayout>

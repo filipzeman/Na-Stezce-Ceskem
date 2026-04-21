@@ -1,4 +1,4 @@
-const CACHE_NAME = "stezka-v2";
+const CACHE_NAME = "stezka-v3";
 
 // This block will be replaced at build time with all unique detail pages
 const CORE_ASSETS = [
@@ -111,46 +111,31 @@ self.addEventListener("activate", (event) => {
 });
 
 // fetch
+
+// Network-first, cache-fallback fetch handler
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(request);
-      if (cached) {
-        return cached;
-      }
-      // Navigační požadavky (HTML stránky)
-      if (request.mode === "navigate") {
-        const url = new URL(request.url);
-        const pathname = url.pathname;
-        // Zkus přesnou shodu bez search
-        let matchNoSearch = await cache.match(pathname, { ignoreSearch: true });
-        if (!matchNoSearch && pathname.endsWith("/")) {
-          // Zkus bez trailing slash
-          matchNoSearch = await cache.match(pathname.slice(0, -1), { ignoreSearch: true });
-        }
-        if (!matchNoSearch && !pathname.endsWith("/")) {
-          // Zkus s trailing slash
-          matchNoSearch = await cache.match(pathname + "/", { ignoreSearch: true });
-        }
-        if (matchNoSearch) {
-          return matchNoSearch;
-        }
-        // Fallback na root
-        const fallback = await cache.match("/");
-        if (fallback) {
-          return fallback;
-        }
-        return new Response("Offline", { status: 503, statusText: "Offline" });
-      }
-      // Ostatní požadavky (např. obrázky, data)
       try {
+        // Try network first
         const response = await fetch(request);
-        cache.put(request, response.clone());
+        // Optionally update cache for navigations and core assets
+        if (request.method === "GET" && (request.mode === "navigate" || CORE_ASSETS.includes(new URL(request.url).pathname))) {
+          cache.put(request, response.clone());
+        }
         return response;
       } catch (err) {
+        // If offline, fallback to cache
+        const cached = await cache.match(request, { ignoreSearch: true });
+        if (cached) return cached;
+        // For navigations, fallback to root
+        if (request.mode === "navigate") {
+          const fallback = await cache.match("/");
+          if (fallback) return fallback;
+          return new Response("Offline", { status: 503, statusText: "Offline" });
+        }
         return new Response("", { status: 503 });
       }
     })()

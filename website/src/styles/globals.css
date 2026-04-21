@@ -1,3 +1,9 @@
+import {HEADER_HEIGHT} from './constants.js';
+
+:root {
+  --header-height: ${HEADER_HEIGHT}px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -159,6 +165,35 @@ a {
 .text-muted {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+
+.toast {
+  position: fixed;
+  top: calc(var(--header-height) + 20px);
+  right: 20px;
+
+  background: var(--color-primary);
+  color: white;
+
+  padding: 10px 14px;
+  border-radius: 8px;
+
+  font-size: 0.85rem;
+  z-index: 9999;
+
+  /* 👇 important */
+  transition: transform 1s ease, opacity 1s ease;
+}
+
+/* initial state */
+.toast {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* exit state */
+.toast.hide {
+  opacity: 0;
 }
 
 .offline-toast {
