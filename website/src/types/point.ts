@@ -93,5 +93,8 @@ export type TuristicGoalTypes =
   | "turisticke_informacni_centrum"
   | "muzeum"
   | "kriz"
-  | "ostatni";
+  | "ostatni"
+  | "pechotni_srub"
+  | "ruina";
+
 export type OtherServiceTypes = "razitko" | "zasilkovna" | "bankomat";

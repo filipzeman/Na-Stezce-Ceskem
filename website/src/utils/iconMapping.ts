@@ -36,6 +36,7 @@ export function getPointTypeIcons(point: Point): IconName[] {
     // Food types
     restaurace: "Utensils",
     bufet: "Utensils",
+    lesni_bar: "Utensils",
     obchod: "ShoppingBasket",
     vecerka: "ShoppingBasket",
     kavarna: "Coffee",
@@ -68,6 +69,8 @@ export function getPointTypeIcons(point: Point): IconName[] {
     turisticke_informacni_centrum: "Info",
     muzeum: "Landmark",
     kriz: "Info",
+    pechotni_srub: "Landmark",
+    ruina: "Landmark",
     // Other service types
     obec: "Building2",
     razitko: "Stamp",

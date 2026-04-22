@@ -6,6 +6,7 @@ const CORE_ASSETS = [
   "/caste-dotazy",
   "/o-projektu",
   "/mapa",
+  "/blog",
   "/itinerar",
   "/itinerar?filtr=vse",
   "/itinerar?filtr=ubytovani",

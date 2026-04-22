@@ -158,8 +158,10 @@ const filters = [
         });
       }
     });
+
     function highlightNearest(user) {
       const items = Array.from(document.querySelectorAll(".item"));
+      console.log("ITEMS", document.querySelectorAll(".item").length);
       let closest = null;
       let minDist = Infinity;
       items.forEach((el) => {
@@ -167,6 +169,7 @@ const filters = [
         const lng = parseFloat(el.dataset.lng);
         if (!lat || !lng) return;
         const d = distance(user, { lat, lng });
+        console.log("distance to", el, d);
         if (d < minDist) {
           minDist = d;
           closest = el;
@@ -177,10 +180,27 @@ const filters = [
       closest.classList.add("active");
       return closest;
     }
+
     function distance(a, b) {
-      const dx = a.lat - b.lat;
-      const dy = a.lng - b.lng;
-      return Math.sqrt(dx * dx + dy * dy);
+      const R = 6371; // km
+
+      const dLat = toRad(b.lat - a.lat);
+      const dLng = toRad(b.lng - a.lng);
+
+      const lat1 = toRad(a.lat);
+      const lat2 = toRad(b.lat);
+
+      const aVal =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+
+      const c = 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal));
+
+      return R * c;
+    }
+
+    function toRad(value) {
+      return (value * Math.PI) / 180;
     }
   });
 </script>
@@ -268,7 +288,7 @@ const filters = [
 
   /* highlight active point */
 
-  .item.active::before {
+  :global(.item.active::before) {
     width: 14px;
 
     height: 14px;
@@ -280,13 +300,10 @@ const filters = [
     box-shadow: 0 0 0 3px var(--color-primary);
 
     transform: scale(1.1);
+    top: 0.6rem;
+    left: -5px;
 
     transition: all 0.2s ease;
-  }
-
-  /* subtle pulse */
-
-  .item.active::before {
     animation: pulse 1.5s infinite;
   }
 

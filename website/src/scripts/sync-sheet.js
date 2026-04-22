@@ -9,6 +9,21 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+function convertDDMToDD(value) {
+  if (!value) return null;
+
+  const parts = value.trim().split(" ");
+
+  if (parts.length < 2) return null;
+
+  const degrees = parseFloat(parts[0]);
+  const minutes = parseFloat(parts[1]);
+
+  if (isNaN(degrees) || isNaN(minutes)) return null;
+
+  return degrees + minutes / 60;
+}
+
 async function sync() {
   const auth = new google.auth.GoogleAuth({
     keyFile: process.env.GOOGLE_SERVICE_KEY,
@@ -54,8 +69,8 @@ async function sync() {
       opening_info: row[13],
 
       elevation: row[14] ? parseInt(row[14]) : null,
-      latitude: row[15] ? parseFloat(row[15]) : null,
-      longitude: row[16] ? parseFloat(row[16]) : null,
+      latitude: convertDDMToDD(row[15]),
+      longitude: convertDDMToDD(row[16]),
 
       navigation_color: row[17],
       note: row[18],

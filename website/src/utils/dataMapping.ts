@@ -50,4 +50,7 @@ export const typeMap = {
   Zásilkovna: "zasilkovna",
   Bankomat: "bankomat",
   Obec: "obec",
+  "Pěchotní srub": "pechotni_srub",
+  Ruina: "ruina",
+  "Lesní bar": "lesni_bar",
 };
