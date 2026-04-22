@@ -1,7 +1,7 @@
 {
   "name": "Na stezce českem",
   "short_name": "Stezka",
-  "start_url": "/itinerar",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",

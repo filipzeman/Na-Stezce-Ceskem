@@ -9,22 +9,11 @@ import { groupPointsByLocation } from "../utils/groupPoints";
 import type { Point } from "../types/point";
 
 const supabase = getSupabase();
-let { data, error } = await supabase.from("points").select("*").order("km", { ascending: true });
-
-if (error) {
-  console.error("Error fetching points:", error);
-}
+let { data } = await supabase.from("points").select("*").order("km", { ascending: true });
 
 let points = data as Point[];
 
-console.log("points", points);
-console.log("data");
-
-if (!points) {
-  return null;
-}
-
-console.log("type key", mapKey(typeMap, points[0].type));
+if (!points) return null;
 
 const sortedPoints = points
   .map((p) => ({
@@ -38,67 +27,68 @@ const groupedPoints = groupPointsByLocation(sortedPoints);
 groupedPoints.sort((a, b) => a.km - b.km);
 
 const filter = Astro.url.searchParams.get("filtr");
-
 const showGroupedPoints = !filter || filter === "vse";
 
 const filteredPoints = sortedPoints.filter((point) => {
-  if (filter === "vse" || !filter) return true;
-  if (filter === "ubytovani") return point.categoryKey == "ubytovani";
-  if (filter === "obcerstveni") return point.categoryKey == "obcerstveni";
-  if (filter === "navigace") return point.categoryKey == "navigace";
-  if (filter === "doprava") return point.categoryKey == "doprava";
-  if (filter === "turisticke_cile") return point.categoryKey == "turisticke_cile";
-  if (filter === "ostatni") return point.categoryKey == "ostatni";
-  return true;
+  if (!filter || filter === "vse") return true;
+  return point.categoryKey === filter;
 });
 
 const pointsToRender = showGroupedPoints ? groupedPoints : filteredPoints;
 
 const filters = [
   { key: "vse", label: "Vše" },
-  { key: "ubytovani", label: "Ubytování", icon: "Bed" },
-  { key: "obcerstveni", label: "Občerstvení", icon: "Utensils" },
-  { key: "navigace", label: "Navigace", icon: "Signpost" },
-  { key: "doprava", label: "Doprava", icon: "BusFront" },
-  { key: "turisticke_cile", label: "Turistické cíle", icon: "Mountain" },
-  { key: "ostatni", label: "Ostatní", icon: "Info" },
+  { key: "ubytovani", label: "Ubytování" },
+  { key: "obcerstveni", label: "Občerstvení" },
+  { key: "navigace", label: "Navigace" },
+  { key: "doprava", label: "Doprava" },
+  { key: "turisticke_cile", label: "Turistické cíle" },
+  { key: "ostatni", label: "Ostatní" },
 ];
 ---
 
 <BaseLayout title="Itinerář | Orlické hory">
   <section class="container">
     <h1>Itinerář</h1>
-    <p class="subtitle">Přehled bodů podél trasy etapy Orlické hory.</p>
+    <p class="subtitle">Přehled bodů podél trasy.</p>
   </section>
 
-  <section class="container">
-    <!-- <IconGuide /> -->
-
-    <div class="filters-wrapper">
-      <div class="filters">
-        {
-          filters.map((f) => (
-            <a
-              href={`/itinerar?filtr=${f.key}`}
-              class={`filter ${(filter ?? "vse") === f.key ? "active" : ""}`}
-            >
-              {/* <Icon name={f.icon || "Info"} size={16} notInteractive /> */}
-              <span>{f.label}</span>
-            </a>
-          ))
-        }
-      </div>
+  <!-- STICKY NAV -->
+  <section class="container sticky-nav">
+    <!-- FILTERS -->
+    <div class="filters">
+      {
+        filters.map((f) => (
+          <a
+            href={`/itinerar?filtr=${f.key}`}
+            class={`filter ${(filter ?? "vse") === f.key ? "active" : ""}`}
+          >
+            {f.label}
+          </a>
+        ))
+      }
     </div>
-  </section>
 
-  <section class="container">
+    <!-- LOCATION BAR -->
     <div class="location-bar">
-      <button id="locate-btn" class="btn btn-secondary"> Moje poloha</button>
-      <button id="scroll-btn" class="btn btn-primary hidden"> Přejít na moji polohu</button>
+      <button id="locate-btn" class="btn btn-primary">Moje poloha</button>
+
+      <button id="scroll-btn" class="btn btn-secondary hidden" disabled>
+        Přejít na moji polohu
+      </button>
+
       <span id="locate-status" class="locate-status"></span>
     </div>
+
+    <!-- INFO BAR (future dynamic) -->
+    <div class="info-bar">
+      <div class="info-item">Občerstvení —</div>
+      <div class="info-item">Ubytování —</div>
+      <div class="info-item">Doprava —</div>
+    </div>
   </section>
 
+  <!-- POINTS -->
   <section class="container points">
     {
       pointsToRender.map((point, index) => (
@@ -113,77 +103,16 @@ const filters = [
     const locateBtn = document.getElementById("locate-btn");
     const scrollBtn = document.getElementById("scroll-btn");
     const status = document.getElementById("locate-status");
-    let currentElement = null;
-    // restore from session
-    const stored = sessionStorage.getItem("user-location");
-    if (stored) {
-      const user = JSON.parse(stored);
-      highlightNearest(user);
-      scrollBtn.classList.remove("hidden");
-    }
-    locateBtn?.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        status.textContent = "Geolokace není podporována";
-        return;
-      }
-      status.textContent = "Získávám polohu…";
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const user = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          };
-          sessionStorage.setItem("user-location", JSON.stringify(user));
-          const el = highlightNearest(user);
-          if (el) {
-            el.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-            });
-            currentElement = el;
-            scrollBtn.classList.remove("hidden");
-          }
-          status.textContent = "Poloha aktivní";
-        },
-        () => {
-          status.textContent = "Poloha zamítnuta";
-        }
-      );
-    });
-    scrollBtn?.addEventListener("click", () => {
-      if (currentElement) {
-        currentElement.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-    });
 
-    function highlightNearest(user) {
-      const items = Array.from(document.querySelectorAll(".item"));
-      console.log("ITEMS", document.querySelectorAll(".item").length);
-      let closest = null;
-      let minDist = Infinity;
-      items.forEach((el) => {
-        const lat = parseFloat(el.dataset.lat);
-        const lng = parseFloat(el.dataset.lng);
-        if (!lat || !lng) return;
-        const d = distance(user, { lat, lng });
-        console.log("distance to", el, d);
-        if (d < minDist) {
-          minDist = d;
-          closest = el;
-        }
-      });
-      if (!closest) return null;
-      document.querySelectorAll(".item.active").forEach((i) => i.classList.remove("active"));
-      closest.classList.add("active");
-      return closest;
+    let currentElement = null;
+
+    function enableScrollButton() {
+      scrollBtn.classList.remove("hidden");
+      scrollBtn.disabled = false;
     }
 
     function distance(a, b) {
-      const R = 6371; // km
-
+      const R = 6371;
       const dLat = toRad(b.lat - a.lat);
       const dLng = toRad(b.lng - a.lng);
 
@@ -191,94 +120,170 @@ const filters = [
       const lat2 = toRad(b.lat);
 
       const aVal =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+        Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
 
       const c = 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal));
-
       return R * c;
     }
 
-    function toRad(value) {
-      return (value * Math.PI) / 180;
+    function toRad(v) {
+      return (v * Math.PI) / 180;
     }
+
+    function highlightNearest(user) {
+      const items = Array.from(document.querySelectorAll(".item"));
+
+      let closest = null;
+      let minDist = Infinity;
+
+      items.forEach((el) => {
+        const lat = parseFloat(el.dataset.lat);
+        const lng = parseFloat(el.dataset.lng);
+
+        if (!lat || !lng) return;
+
+        const d = distance(user, { lat, lng });
+
+        if (d < minDist) {
+          minDist = d;
+          closest = el;
+        }
+      });
+
+      if (!closest) return null;
+
+      document.querySelectorAll(".item.active").forEach((i) => i.classList.remove("active"));
+
+      closest.classList.add("active");
+
+      return closest;
+    }
+
+    // restore session
+    const stored = sessionStorage.getItem("user-location");
+
+    if (stored) {
+      const user = JSON.parse(stored);
+      const el = highlightNearest(user);
+
+      if (el) {
+        currentElement = el;
+        enableScrollButton();
+      }
+    }
+
+    locateBtn?.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        status.textContent = "Geolokace není podporována";
+        return;
+      }
+
+      status.textContent = "Získávám polohu…";
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const user = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+
+          sessionStorage.setItem("user-location", JSON.stringify(user));
+
+          const el = highlightNearest(user);
+
+          if (el) {
+            currentElement = el;
+
+            const isFirstLocate = !sessionStorage.getItem("location-initialized");
+
+            if (isFirstLocate) {
+              el.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+
+              sessionStorage.setItem("location-initialized", "true");
+            }
+
+            enableScrollButton();
+          }
+
+          status.textContent = "Poloha aktivní";
+        },
+        (err) => {
+          console.log(err);
+          status.textContent = "Poloha zamítnuta";
+        }
+      );
+    });
+
+    scrollBtn?.addEventListener("click", () => {
+      if (!currentElement) return;
+
+      currentElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
   });
 </script>
 
 <style>
-  .points {
-    display: flex;
-    flex-direction: column;
-    padding-left: 20px;
-    /* gap: 1rem; */
+  :root {
+    --color-accent: #2f855a;
+    --header-height: 60px;
   }
 
-  /* label */
-  .filters-label {
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-    margin-bottom: 6px;
+  /* STICKY NAV */
+  .sticky-nav {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 30;
+
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
   }
 
-  /* container */
+  /* FILTERS */
   .filters {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    padding: 8px 0;
   }
 
-  /* button */
   .filter {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
     gap: 6px;
-
     padding: 8px 12px;
     border-radius: 999px;
-
     border: 1px solid var(--color-border);
     background: var(--color-surface);
     color: var(--color-text);
-
     text-decoration: none;
     font-size: 0.9rem;
     white-space: nowrap;
   }
 
-  /* active */
   .filter.active {
     background: var(--color-primary);
     color: white;
-    border-color: var(--color-primary);
+    border: transparent;
   }
 
-  /* icon inside active */
-  .filter.active svg {
-    color: white !important;
-    stroke: white !important;
-    background-color: var(--color-primary) !important;
-  }
-
-  .subtitle {
-    margin-bottom: 0;
-  }
-
+  /* LOCATION BAR */
   .location-bar {
     display: flex;
-
-    align-items: center;
-
     gap: 10px;
-
-    margin: 12px 0;
-
+    align-items: center;
+    padding: 8px 0;
     flex-wrap: wrap;
   }
 
   .locate-status {
     font-size: 0.8rem;
-
     color: var(--color-text-muted);
   }
 
@@ -286,18 +291,47 @@ const filters = [
     display: none;
   }
 
-  /* highlight active point */
+  /* INFO BAR */
+  .info-bar {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 8px 0;
+    /* border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border); */
+  }
+
+  .info-item {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  /* POINTS */
+  .points {
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+  }
+
+  :global(.item.active) {
+    background: rgba(47, 133, 90, 0.05);
+    border-radius: 10px;
+  }
 
   :global(.item.active::before) {
     width: 14px;
 
     height: 14px;
 
-    background: var(--color-primary);
+    background: var(--color-accent);
 
     border: 3px solid white;
 
-    box-shadow: 0 0 0 3px var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-accent);
 
     transform: scale(1.1);
     top: 0.6rem;
@@ -309,15 +343,21 @@ const filters = [
 
   @keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.4);
+      box-shadow: 0 0 0 0 rgba(47, 133, 90, 0.4);
     }
 
     70% {
-      box-shadow: 0 0 0 6px rgba(15, 23, 42, 0);
+      box-shadow: 0 0 0 6px rgba(47, 133, 90, 0);
     }
 
     100% {
-      box-shadow: 0 0 0 0 rgba(15, 23, 42, 0);
+      box-shadow: 0 0 0 0 rgba(47, 133, 90, 0);
     }
+  }
+
+  /* BUTTON STATE */
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>
