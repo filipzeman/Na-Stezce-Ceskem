@@ -7,6 +7,8 @@ import { categoryMap, typeMap } from "../utils/dataMapping.ts";
 import { mapKey } from "../utils/mapKey.ts";
 import { groupPointsByLocation } from "../utils/groupPoints";
 import type { Point } from "../types/point";
+import Icon from "../components/Icon.astro";
+import { HEADER_HEIGHT } from "../constants/constants.ts";
 
 const supabase = getSupabase();
 let { data } = await supabase.from("points").select("*").order("km", { ascending: true });
@@ -37,58 +39,46 @@ const filteredPoints = sortedPoints.filter((point) => {
 const pointsToRender = showGroupedPoints ? groupedPoints : filteredPoints;
 
 const filters = [
-  { key: "vse", label: "Vše" },
-  { key: "ubytovani", label: "Ubytování" },
-  { key: "obcerstveni", label: "Občerstvení" },
-  { key: "navigace", label: "Navigace" },
-  { key: "doprava", label: "Doprava" },
-  { key: "turisticke_cile", label: "Turistické cíle" },
-  { key: "ostatni", label: "Ostatní" },
+  { key: "vse", label: "Vše", icon: "LayoutGrid" },
+  { key: "ubytovani", label: "Ubytování", icon: "Bed" },
+  { key: "obcerstveni", label: "Občerstvení", icon: "Utensils" },
+  { key: "navigace", label: "Navigace", icon: "Signpost" },
+  { key: "doprava", label: "Doprava", icon: "BusFront" },
+  { key: "turisticke_cile", label: "Cíle", icon: "MapPin" },
+  { key: "ostatni", label: "Ostatní", icon: "Info" },
 ];
 ---
 
 <BaseLayout title="Itinerář | Orlické hory">
-  <section class="container">
-    <h1>Itinerář</h1>
-    <p class="subtitle">Přehled bodů podél trasy.</p>
-  </section>
-
-  <!-- STICKY NAV -->
-  <section class="container sticky-nav">
-    <!-- FILTERS -->
-    <div class="filters">
-      {
-        filters.map((f) => (
-          <a
-            href={`/itinerar?filtr=${f.key}`}
-            class={`filter ${(filter ?? "vse") === f.key ? "active" : ""}`}
-          >
-            {f.label}
-          </a>
-        ))
-      }
+  <section class="container intro-compact">
+    <div class="intro-text">
+      <h1>Itinerář</h1>
+      <p>Přehled bodů podél trasy.</p>
     </div>
 
-    <!-- LOCATION BAR -->
-    <div class="location-bar">
-      <button id="locate-btn" class="btn btn-primary">Moje poloha</button>
+    <div class="geo-row">
+      <button id="location-btn" class="btn btn-primary"> Moje poloha</button>
 
-      <button id="scroll-btn" class="btn btn-secondary hidden" disabled>
-        Přejít na moji polohu
-      </button>
-
-      <span id="locate-status" class="locate-status"></span>
-    </div>
-
-    <!-- INFO BAR (future dynamic) -->
-    <div class="info-bar">
-      <div class="info-item">Občerstvení —</div>
-      <div class="info-item">Ubytování —</div>
-      <div class="info-item">Doprava —</div>
+      <span id="locate-status" class="geo-status"></span>
     </div>
   </section>
 
-  <!-- POINTS -->
+  <!-- FILTER BAR (ONLY STICKY ELEMENT) -->
+  <section class="filter-bar">
+    {
+      filters.map((f) => (
+        <a
+          href={`/itinerar?filtr=${f.key}`}
+          class={`filter-icon ${(filter ?? "vse") === f.key ? "active" : ""}`}
+          aria-label={f.label}
+        >
+          <Icon name={f.icon} size={18} />
+        </a>
+      ))
+    }
+  </section>
+
+  <!-- CONTENT -->
   <section class="container points">
     {
       pointsToRender.map((point, index) => (
@@ -97,22 +87,37 @@ const filters = [
     }
   </section>
 </BaseLayout>
-
 <script type="module">
   window.addEventListener("DOMContentLoaded", () => {
-    const locateBtn = document.getElementById("locate-btn");
-    const scrollBtn = document.getElementById("scroll-btn");
+    const locationBtn = document.getElementById("location-btn");
+    console.log("Location button:", locationBtn);
     const status = document.getElementById("locate-status");
 
+    let locationActive = false;
     let currentElement = null;
 
-    function enableScrollButton() {
-      scrollBtn.classList.remove("hidden");
-      scrollBtn.disabled = false;
+    const filterBar = document.querySelector(".filter-bar");
+
+  function handleSticky() {
+    const rect = filterBar.getBoundingClientRect();
+
+    if (rect.top <=65) {
+      filterBar.classList.add("is-sticky");
+    } else {
+      filterBar.classList.remove("is-sticky");
+    }
+  }
+
+  window.addEventListener("scroll", handleSticky);
+
+    // --- helpers ---
+    function toRad(v) {
+      return (v * Math.PI) / 180;
     }
 
     function distance(a, b) {
       const R = 6371;
+
       const dLat = toRad(b.lat - a.lat);
       const dLng = toRad(b.lng - a.lng);
 
@@ -123,11 +128,8 @@ const filters = [
         Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
 
       const c = 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal));
-      return R * c;
-    }
 
-    function toRad(v) {
-      return (v * Math.PI) / 180;
+      return R * c;
     }
 
     function highlightNearest(user) {
@@ -159,7 +161,28 @@ const filters = [
       return closest;
     }
 
-    // restore session
+    function getStickyOffset() {
+      const stickyNav = document.querySelector(".sticky-nav");
+
+      let height = 0;
+
+      if (stickyNav) height += stickyNav.offsetHeight;
+
+      return height;
+    }
+
+    function scrollToElement(el) {
+      const offset = getStickyOffset();
+
+      const y = el.getBoundingClientRect().top + window.pageYOffset - offset - 150;
+
+      window.scrollTo({
+        top: y,
+        behavior: "smooth",
+      });
+    }
+
+    // --- restore previous session ---
     const stored = sessionStorage.getItem("user-location");
 
     if (stored) {
@@ -168,146 +191,157 @@ const filters = [
 
       if (el) {
         currentElement = el;
-        enableScrollButton();
+        locationActive = true;
+        locationBtn.textContent = "Poloha aktivní";
       }
     }
 
-    locateBtn?.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        status.textContent = "Geolokace není podporována";
-        return;
-      }
+    // --- main button logic ---
+    locationBtn?.addEventListener("click", () => {
+      // FIRST CLICK → get location
+      if (!locationActive) {
+        if (!navigator.geolocation) {
+          status.textContent = "Geolokace není podporována";
+          return;
+        }
 
-      status.textContent = "Získávám polohu…";
+        status.textContent = "Získávám polohu…";
 
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const user = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          };
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const user = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+            };
 
-          sessionStorage.setItem("user-location", JSON.stringify(user));
+            sessionStorage.setItem("user-location", JSON.stringify(user));
 
-          const el = highlightNearest(user);
+            const el = highlightNearest(user);
 
-          if (el) {
-            currentElement = el;
-
-            const isFirstLocate = !sessionStorage.getItem("location-initialized");
-
-            if (isFirstLocate) {
-              el.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-
-              sessionStorage.setItem("location-initialized", "true");
+            if (el) {
+              currentElement = el;
+              scrollToElement(el);
             }
 
-            enableScrollButton();
+            locationActive = true;
+            locationBtn.textContent = "📍 Poloha aktivní";
+            status.textContent = "";
+          },
+          () => {
+            status.textContent = "Poloha zamítnuta";
           }
-
-          status.textContent = "Poloha aktivní";
-        },
-        (err) => {
-          console.log(err);
-          status.textContent = "Poloha zamítnuta";
+        );
+      }
+      // NEXT CLICKS → just scroll
+      else {
+        if (currentElement) {
+          scrollToElement(currentElement);
         }
-      );
-    });
-
-    scrollBtn?.addEventListener("click", () => {
-      if (!currentElement) return;
-
-      currentElement.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      }
     });
   });
 </script>
 
 <style>
-  :root {
-    --color-accent: #2f855a;
-    --header-height: 60px;
-  }
 
-  /* STICKY NAV */
-  .sticky-nav {
-    position: sticky;
-    top: var(--header-height);
-    z-index: 30;
+  .intro-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
-    background: var(--color-bg);
-    border-bottom: 1px solid var(--color-border);
-  }
+  margin: 12px 0;
+}
 
-  /* FILTERS */
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 0;
-  }
+.intro-text h1 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
 
-  .filter {
+.intro-text p {
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.geo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.geo-status {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+  .filter-bar {
+  position: sticky;
+  top: 65px;
+  z-index: 30;
+
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+
+  overflow-x: auto;
+
+  background: var(--color-bg); /* default */
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* sticky state */
+.filter-bar.is-sticky {
+  background: var(--color-surface);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+
+.filter-bar::-webkit-scrollbar {
+    display: none;
+}
+
+  /* ICON BUTTON */
+  .filter-icon {
     flex: 0 0 auto;
+
+    width: 36px;
+    height: 36px;
+
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--color-border);
+    justify-content: center;
+
+    border-radius: 10px;
+
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
+
     color: var(--color-text);
-    text-decoration: none;
-    font-size: 0.9rem;
-    white-space: nowrap;
   }
 
-  .filter.active {
+  /* ACTIVE */
+  .filter-icon.active {
     background: var(--color-primary);
     color: white;
-    border: transparent;
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    svg {
+      color: var(--color-surface);
+    }
   }
 
-  /* LOCATION BAR */
-  .location-bar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding: 8px 0;
-    flex-wrap: wrap;
+  /* TOUCH */
+  .filter-icon:active {
+    transform: scale(0.95);
   }
 
-  .locate-status {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+  /* SNAP (nice UX) */
+  .filter-bar {
+    scroll-snap-type: x mandatory;
   }
 
-  .hidden {
-    display: none;
-  }
-
-  /* INFO BAR */
-  .info-bar {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding: 8px 0;
-    /* border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border); */
-  }
-
-  .info-item {
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    font-size: 0.85rem;
-    white-space: nowrap;
+  .filter-icon {
+    scroll-snap-align: start;
   }
 
   /* POINTS */
@@ -359,5 +393,12 @@ const filters = [
   .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+
+  /* desktop */
+  @media (min-width: 768px) {
+    .filter-bar {
+      justify-content: center;
+      mask-image: none;
+    }
   }
 </style>
