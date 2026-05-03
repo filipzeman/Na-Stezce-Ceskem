@@ -1,10 +1,5 @@
-# Digitání průvodce etapou Stezky Českem
+# Digitání průvodce Na Stezce Českem
 
-### Version: 0.5
+### Version: 0.9
 
-### Author: Filip Zeman
-
-## TODO:
-
--- PWA (offline data)
--- option to download filtered itinerary
+### Author: Filip Zema
