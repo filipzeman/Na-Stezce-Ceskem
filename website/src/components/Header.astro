@@ -123,8 +123,12 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
       width: 100%;
       top: 0;
       z-index: 200; /* Above install banner (z-index: 50) */
-      background: white;
-      border-bottom: 1px solid #eee;
+      background: var(--color-surface);
+      transition: box-shadow 0.2s ease;
+    }
+
+    header.scrolled {
+      box-shadow: 0 1px 0 var(--color-border);
     }
 
     .inner {
@@ -134,12 +138,13 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
       justify-content: space-between;
       padding: 0.7rem 1.5rem;
       max-width: var(--max-width);
-      height: ${HEADER_HEIGHT}px;
+      height: 56px;
 
       @media (min-width: 768px) {
         padding: 20px 1rem;
         flex-direction: row;
         margin: 0 auto;
+        height: 65px;
       }
     }
 
