@@ -22,7 +22,7 @@ const filters = [
   <section class="container intro">
     <h1>Mapa</h1>
     <p class="subtitle">
-      Zobrazte trasu a důležité body na mapě Mapy.cz.
+      Zobrazte trasu a důležité body na mapě | Mapy.cz.
       <!-- Přepínejte mezi vrstvami podle potřeby. -->
     </p>
   </section>
@@ -42,6 +42,12 @@ const filters = [
   <!-- MAP -->
   <section class="container map-section">
     <div class="map-wrapper">
+      <div class="map-overlay" id="map-overlay">
+        <div class="map-overlay-content">
+          <Icon name="Map" size={20} />
+          <span>Aktivovat mapu</span>
+        </div>
+      </div>
       <iframe id="map-frame" src={maps.main} loading="lazy" allowfullscreen></iframe>
     </div>
 
@@ -77,6 +83,22 @@ const filters = [
       frame.src = maps[key];
       link.href = maps[key];
     });
+  });
+</script>
+
+<script>
+  const overlay = document.getElementById("map-overlay");
+  const frame = document.getElementById("map-frame");
+
+  overlay.addEventListener("click", () => {
+    frame.style.pointerEvents = "auto";
+
+    overlay.classList.add("hidden");
+
+    // remove from DOM after fade (optional clean)
+    setTimeout(() => {
+      overlay.style.display = "none";
+    }, 250);
   });
 </script>
 
@@ -121,12 +143,53 @@ const filters = [
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--color-border);
+    position: relative;
   }
 
   .map-wrapper iframe {
     width: 100%;
     height: 100%;
     border: none;
+    pointer-events: none;
+  }
+
+  .map-overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(2px);
+
+    z-index: 10;
+    cursor: pointer;
+
+    transition: opacity 0.25s ease;
+  }
+
+  .map-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .map-overlay-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 14px;
+    border-radius: 999px;
+
+    background: white;
+    border: 1px solid var(--color-border);
+
+    font-size: 0.85rem;
+    color: var(--color-text);
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   }
 
   .map-actions {
