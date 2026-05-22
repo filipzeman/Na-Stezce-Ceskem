@@ -8,8 +8,6 @@ import { mapKey } from "../utils/mapKey.ts";
 import { groupPointsByLocation } from "../utils/groupPoints";
 import type { Point } from "../types/point";
 import Icon from "../components/Icon.astro";
-import { MOBILE_HEADER_HEIGHT, DESKTOP_HEADER_HEIGHT } from "../constants/constants";
-
 
 const supabase = getSupabase();
 let { data } = await supabase.from("points").select("*").order("km", { ascending: true });
@@ -113,7 +111,7 @@ const filters = [
   function handleSticky() {
     const rect = filterBar.getBoundingClientRect();
 
-    if (rect.top <= MOBILE_HEADER_HEIGHT) {
+    if (rect.top <= 65) {
       filterBar.classList.add("is-sticky");
     } else {
       filterBar.classList.remove("is-sticky");
@@ -128,7 +126,7 @@ const filters = [
     }
 
     function distance(a, b) {
-      const R = 6371;
+      const R = 6371;  
 
       const dLat = toRad(b.lat - a.lat);
       const dLng = toRad(b.lng - a.lng);
@@ -285,12 +283,12 @@ const filters = [
 
 .filter-bar {
   position: sticky;
-  top: ${MOBILE_HEADER_HEIGHT}px;
+  top: var(--mobile-header-height);
   z-index: 30;
 
   display: flex;
   gap: 10px;
-  padding: 0 12px;
+  padding: 0 16px;
 
   overflow-x: auto;
 
@@ -298,8 +296,8 @@ const filters = [
   transition: background 0.2s ease, border-color 0.2s ease;
 
   @media (min-width: 768px) {
-    top: ${DESKTOP_HEADER_HEIGHT}px;
-    padding: 8px 12px;
+    top: var(--desktop-header-height);
+    padding: 8px 16px;
   }
 }
 
@@ -317,7 +315,7 @@ const filters = [
   display: flex;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1rem 1rem;
+  padding: 0;
   gap:0.8rem;
   width:100%
 }

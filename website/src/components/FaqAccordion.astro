@@ -1,5 +1,11 @@
 ---
+import { marked } from "marked";
+
 const { question, answer } = Astro.props;
+
+console.log("FAQ item", { question, answer });
+
+const parsedAnswer = marked.parse(answer) || "<p>Odpověď není k dispozici.</p>";
 ---
 
 <div class="faq-item">
@@ -16,7 +22,7 @@ const { question, answer } = Astro.props;
   </button>
   <div class="faq-answer" hidden>
     <div class="faq-content">
-      {answer}
+      <div set:html={parsedAnswer} />
     </div>
   </div>
 </div>

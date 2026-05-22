@@ -2,60 +2,78 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FaqAccordion from "../components/FaqAccordion.astro";
 
+import { getSupabase } from "../lib/supabase.ts";
+import type { FaqItem } from "../types/faq";
+
+const supabase = getSupabase();
+let { data } = await supabase.from("faq").select("*").order("created_at", { ascending: true });
+
+let faqs = data as FaqItem[];
+
+if (!faqs) {
+  faqs = [];
+  console.error("Nenalezena žádná data o FAQ.");
+} else {
+  console.log(`Načteno ${faqs.length} FAQ z databáze.`);
+}
+
+const validFaqs = faqs.filter((faq) => faq.question && faq.answer && faq.is_published === true);
+const faqCategories = Array.from(new Set(validFaqs.map((faq) => faq.category).filter(Boolean)));
+
 // Dummy data - bude nahrazeno databází
-const faqData = {
-  aplikace: [
-    {
-      question: "Jak si nainstalovat aplikaci pro offline použití?",
-      answer:
-        "Aplikaci můžete nainstalovat jako PWA (Progressive Web App). Otevřete stránku v prohlížeči Chrome, Safari nebo Edge, klikněte na ikonu instalace v adresním řádku nebo menu a vyberte 'Přidat na domovskou obrazovku'. Aplikace se přidá mezi vaše aplikace a funguje i bez internetu.",
-    },
-    {
-      question: "Co všechno funguje offline?",
-      answer:
-        "Offline funguje kompletní itinerář všech bodů na trase, detailní informace o službách (ubytování, jídlo, doprava), filtrování bodů podle kategorií a uložené obrázky bodů. Nefunguje nahrávání nových obrázků (vyžaduje internet).",
-    },
-    {
-      question: "Jak poznám, že aplikace funguje offline?",
-      answer:
-        "Při načtení aplikace se zobrazí zpráva 'Aplikace je připravena pro offline použití'. Při ztrátě připojení uvidíte notifikaci 'Jste offline - aplikace funguje bez internetu'. Při návratu připojení se zobrazí 'Zpět online'. V headeru vidíte také indikátor stavu připojení.",
-    },
-  ],
-  pouzivani: [
-    {
-      question: "Jak používat offline verzi aplikace?",
-      answer:
-        "Aplikace podporuje offline režim. Stačí si stránky načíst předem v prohlížeči. V offline režimu budou dostupné všechny body a itinerář.",
-    },
-    {
-      question: "Jak filtrovat body v itineráři?",
-      answer:
-        "Na stránce itineráře použijte filtry v horní části. Můžete filtrovat podle kategorií jako ubytování, občerstvení nebo navigace.",
-    },
-    {
-      question: "Jak exportovat filtrované body do PDF?",
-      answer:
-        "Po aplikování filtrů klikněte na tlačítko 'Exportovat' v pravém horním rohu. Soubor PDF bude obsahovat všechny zobrazené body.",
-    },
-  ],
-  stezka: [
-    {
-      question: "Jaké boty doporučujete na stezku?",
-      answer:
-        "Doporučujeme kvalitní turistické boty s dobrou podporou kotníků. V létě postačí lehčí trekové boty, v zimě teplejší s membránou proti vodě.",
-    },
-    {
-      question: "Kde se dá přespat podél trasy?",
-      answer:
-        "Podél trasy najdete různé možnosti ubytování - turistické chaty, kempy, hotely a nouzové nocoviště. Všechny body jsou označeny v itineráři.",
-    },
-    {
-      question: "Jak se orientovat na trase?",
-      answer:
-        "Trasa je dobře značená. V aplikaci najdete všechny rozcestníky, milníky a navigaci s barvami trasy. Doporučujeme GPS nebo offline mapy.",
-    },
-  ],
-};
+// const faqData: Record<string, FaqItem[]> = {
+//   aplikace: [
+//     {
+//       question: "Jak si nainstalovat aplikaci pro offline použití?",
+//       answer:
+//         "Aplikaci můžete nainstalovat jako PWA (Progressive Web App). Otevřete stránku v prohlížeči Chrome, Safari nebo Edge, klikněte na ikonu instalace v adresním řádku nebo menu a vyberte 'Přidat na domovskou obrazovku'. Aplikace se přidá mezi vaše aplikace a funguje i bez internetu.",
+//     },
+//     {
+//       question: "Co všechno funguje offline?",
+//       answer:
+//         "Offline funguje kompletní itinerář všech bodů na trase, detailní informace o službách (ubytování, jídlo, doprava), filtrování bodů podle kategorií a uložené obrázky bodů. Nefunguje nahrávání nových obrázků (vyžaduje internet).",
+//     },
+//     {
+//       question: "Jak poznám, že aplikace funguje offline?",
+//       answer:
+//         "Při načtení aplikace se zobrazí zpráva 'Aplikace je připravena pro offline použití'. Při ztrátě připojení uvidíte notifikaci 'Jste offline - aplikace funguje bez internetu'. Při návratu připojení se zobrazí 'Zpět online'. V headeru vidíte také indikátor stavu připojení.",
+//     },
+//   ],
+//   pouzivani: [
+//     {
+//       question: "Jak používat offline verzi aplikace?",
+//       answer:
+//         "Aplikace podporuje offline režim. Stačí si stránky načíst předem v prohlížeči. V offline režimu budou dostupné všechny body a itinerář.",
+//     },
+//     {
+//       question: "Jak filtrovat body v itineráři?",
+//       answer:
+//         "Na stránce itineráře použijte filtry v horní části. Můžete filtrovat podle kategorií jako ubytování, občerstvení nebo navigace.",
+//     },
+//     {
+//       question: "Jak exportovat filtrované body do PDF?",
+//       answer:
+//         "Po aplikování filtrů klikněte na tlačítko 'Exportovat' v pravém horním rohu. Soubor PDF bude obsahovat všechny zobrazené body.",
+//     },
+//   ],
+//   stezka: [
+//     {
+//       question: "Jaké boty doporučujete na stezku?",
+//       answer:
+//         "Doporučujeme kvalitní turistické boty s dobrou podporou kotníků. V létě postačí lehčí trekové boty, v zimě teplejší s membránou proti vodě.",
+//     },
+//     {
+//       question: "Kde se dá přespat podél trasy?",
+//       answer:
+//         "Podél trasy najdete různé možnosti ubytování - turistické chaty, kempy, hotely a nouzové nocoviště. Všechny body jsou označeny v itineráři.",
+//     },
+//     {
+//       question: "Jak se orientovat na trase?",
+//       answer:
+//         "Trasa je dobře značená. V aplikaci najdete všechny rozcestníky, milníky a navigaci s barvami trasy. Doporučujeme GPS nebo offline mapy.",
+//     },
+//   ],
+// };
 ---
 
 <BaseLayout title="Časté dotazy">
@@ -83,26 +101,20 @@ const faqData = {
     </div>
 
     <section class="faq-section">
-      <h2>Instalace a offline režim</h2>
       {
-        faqData.aplikace.map((item) => (
-          <FaqAccordion question={item.question} answer={item.answer} />
+        faqCategories.map((category) => (
+          <>
+            <h2>{category}</h2>
+            {validFaqs
+              .filter((faq) => faq.category === category)
+              .map((item) => (
+                <FaqAccordion question={item.question} answer={item.answer} />
+              ))}
+          </>
         ))
       }
-    </section>
-
-    <section class="faq-section">
-      <h2>Jak používat web/aplikaci</h2>
-      {
-        faqData.pouzivani.map((item) => (
-          <FaqAccordion question={item.question} answer={item.answer} />
-        ))
-      }
-    </section>
-
-    <section class="faq-section">
-      <h2>Dotazy o stezce</h2>
-      {faqData.stezka.map((item) => <FaqAccordion question={item.question} answer={item.answer} />)}
+      <!-- <h2>Instalace a offline režim</h2>
+      {validFaqs.map((item) => <FaqAccordion question={item.question} answer={item.answer} />)} -->
     </section>
   </section>
 </BaseLayout>

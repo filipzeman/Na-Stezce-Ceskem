@@ -86,6 +86,28 @@ const pointMap = Object.fromEntries((points ?? []).map((p) => [p.id, p.point_nam
             </div>
           </div>
 
+          <div class="card" id="faq-card">
+            <h3>FAQ</h3>
+            <button id="faq-add-btn" class="btn btn-primary">Přidat FAQ</button>
+            <div id="faq-list"></div>
+            <form id="faq-form" class="form hidden">
+              <input id="faq-id" type="hidden" />
+              <input id="faq-question" type="text" placeholder="Otázka" required />
+              <textarea id="faq-answer" placeholder="Odpověď (Markdown)" required></textarea>
+              <input id="faq-category" type="text" placeholder="Kategorie (volitelné)" />
+              <input id="faq-order" type="number" placeholder="Pořadí (volitelné)" />
+              <label>
+                <input id="faq-published" type="checkbox" checked /> Publikováno
+              </label>
+              <div style="margin: 0.5em 0;">
+                <strong>Náhled odpovědi:</strong>
+                <div id="faq-preview" class="faq-preview" style="border:1px solid #eee; padding:0.5em; min-height:2em;"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">Uložit</button>
+              <button type="button" id="faq-cancel-btn" class="btn">Zrušit</button>
+            </form>
+          </div>
+
           <button id="logout-btn" class="btn btn-danger btn-block logout"> Odhlásit</button>
         </div>
       </section>
@@ -102,188 +124,204 @@ const pointMap = Object.fromEntries((points ?? []).map((p) => [p.id, p.point_nam
     <!-- CLIENT -->
     <script type="module">
       import { createClient } from "https://esm.sh/@supabase/supabase-js";
+      import { marked } from "https://esm.sh/marked";
 
       document.addEventListener("DOMContentLoaded", async () => {
         const supabase = createClient(window.ENV.SUPABASE_URL, window.ENV.SUPABASE_KEY);
 
         const loginEl = document.getElementById("login");
         const dashboardEl = document.getElementById("dashboard");
-
         const emailEl = document.getElementById("email");
         const passwordEl = document.getElementById("password");
         const loginBtn = document.getElementById("login-btn");
         const logoutBtn = document.getElementById("logout-btn");
         const errorEl = document.getElementById("error");
 
-        const form = document.getElementById("upload-form");
+        // FAQ MANAGEMENT
+        const faqCard = document.getElementById("faq-card");
+        const faqList = document.getElementById("faq-list");
+        const faqAddBtn = document.getElementById("faq-add-btn");
+        const faqForm = document.getElementById("faq-form");
+        const faqId = document.getElementById("faq-id");
+        const faqQuestion = document.getElementById("faq-question");
+        const faqAnswer = document.getElementById("faq-answer");
+        const faqCategory = document.getElementById("faq-category");
+        const faqOrder = document.getElementById("faq-order");
+        const faqPublished = document.getElementById("faq-published");
+        const faqPreview = document.getElementById("faq-preview");
+        const faqCancelBtn = document.getElementById("faq-cancel-btn");
 
-        const fileInput = document.getElementById("file-input");
-        const fileText = document.getElementById("file-text");
-        const previewContainer = document.getElementById("preview");
-        const fileInfo = document.getElementById("file-info");
+        let faqs = [];
 
-        /** @type {File[]} */
-        let compressedFiles = [];
+        // Show/hide logic
+        function showLogin() {
+          loginEl.classList.remove("hidden");
+          dashboardEl.classList.add("hidden");
+        }
+        function showDashboard() {
+          loginEl.classList.add("hidden");
+          dashboardEl.classList.remove("hidden");
+          fetchFaqs();
+        }
 
-        // 🔹 SESSION
+        // Session check
         const {
           data: { session },
         } = await supabase.auth.getSession();
+        if (session) {
+          showDashboard();
+        } else {
+          showLogin();
+        }
 
-        session ? showDashboard() : showLogin();
-
-        // 🔹 LOGIN
+        // Login
         loginBtn?.addEventListener("click", async () => {
           errorEl.textContent = "";
-
           const { error } = await supabase.auth.signInWithPassword({
             email: emailEl.value,
             password: passwordEl.value,
           });
-
           if (error) errorEl.textContent = error.message;
           else showDashboard();
         });
 
-        // 🔹 LOGOUT
+        // Logout
         logoutBtn?.addEventListener("click", async () => {
           await supabase.auth.signOut();
           showLogin();
         });
 
-        // 🔥 COMPRESS IMAGE
-        async function compressImage(file) {
-          return new Promise((resolve) => {
-            const img = new Image();
-            const reader = new FileReader();
-
-            reader.onload = (e) => (img.src = e.target.result);
-
-            img.onload = () => {
-              const canvas = document.createElement("canvas");
-
-              const MAX_WIDTH = 1600;
-              const scale = Math.min(1, MAX_WIDTH / img.width);
-
-              canvas.width = img.width * scale;
-              canvas.height = img.height * scale;
-
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-              canvas.toBlob(
-                (blob) => {
-                  const compressed = new File([blob], file.name.replace(/\.\w+$/, ".jpg"), {
-                    type: "image/jpeg",
-                  });
-
-                  resolve(compressed);
-                },
-                "image/jpeg",
-                0.7
-              );
-            };
-
-            reader.readAsDataURL(file);
-          });
-        }
-
-        function formatSize(bytes) {
-          return (bytes / 1024 / 1024).toFixed(2) + " MB";
-        }
-
-        // 🔥 FILE CHANGE
-        fileInput.addEventListener("change", async () => {
-          const files = fileInput.files;
-          if (!files) return;
-
-          previewContainer.innerHTML = "";
-          compressedFiles = [];
-
-          fileText.textContent =
-            files.length === 1 ? files[0].name : `${files.length} souborů vybráno`;
-
-          for (const file of files) {
-            const compressed = await compressImage(file);
-            compressedFiles.push(compressed);
-
-            const wrapper = document.createElement("div");
-            wrapper.className = "preview-item";
-
-            const img = document.createElement("img");
-            img.src = URL.createObjectURL(compressed);
-
-            const info = document.createElement("div");
-            info.className = "preview-info";
-            info.textContent = `${formatSize(compressed.size)}`;
-
-            wrapper.appendChild(img);
-            wrapper.appendChild(info);
-            previewContainer.appendChild(wrapper);
-          }
-
-          fileInfo.textContent = `${compressedFiles.length} souborů připraveno`;
-        });
-
-        // 🔥 UPLOAD
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const formData = new FormData(form);
-          const point_id = formData.get("point_id");
-
-          if (!point_id || compressedFiles.length === 0) {
-            showToast("Vyber bod a soubory");
+        // FAQ CRUD
+        async function fetchFaqs() {
+          const { data, error } = await supabase
+            .from("faq")
+            .select("*")
+            .order("order_index", { ascending: true, nullsLast: true })
+            .order("created_at", { ascending: true });
+          if (error) {
+            faqList.innerHTML = `<div class=\"error\">Chyba načítání FAQ: ${error.message}</div>`;
             return;
           }
-
-          try {
-            for (const file of compressedFiles) {
-              const filePath = `points/${point_id}/${Date.now()}-${file.name}`;
-
-              const { error: uploadError } = await supabase.storage
-                .from("images")
-                .upload(filePath, file);
-
-              if (uploadError) throw uploadError;
-
-              const { data } = supabase.storage.from("images").getPublicUrl(filePath);
-
-              await supabase.from("images").insert({
-                point_id,
-                url: data.publicUrl,
-              });
-            }
-
-            showToast("✅ Obrázky nahrány");
-
-            form.reset();
-            previewContainer.innerHTML = "";
-            fileInfo.textContent = "";
-            fileText.textContent = "Vybrat obrázky";
-            compressedFiles = [];
-          } catch (err) {
-            console.error(err);
-            showToast("❌ Upload selhal");
+          faqs = data || [];
+          renderFaqList();
+        }
+        function renderFaqList() {
+          if (!faqs.length) {
+            faqList.innerHTML = '<div>Žádné FAQ zatím neexistují.</div>';
+            return;
           }
+          faqList.innerHTML = `
+            <table class="faq-table">
+              <thead>
+                <tr>
+                  <th>Otázka</th>
+                  <th>Kategorie</th>
+                  <th>Pořadí</th>
+                  <th>Publikováno</th>
+                  <th>Akce</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${faqs
+                  .map(
+                    (f) => `
+                  <tr>
+                    <td>${f.question}</td>
+                    <td>${f.category || ""}</td>
+                    <td>${f.order_index ?? ""}</td>
+                    <td>${f.is_published ? "✅" : "❌"}</td>
+                    <td>
+                      <button class="btn btn-sm" data-edit="${f.id}">Upravit</button>
+                      <button class="btn btn-sm btn-danger" data-delete="${f.id}">Smazat</button>
+                    </td>
+                  </tr>
+                `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          `;
+          faqList.querySelectorAll("[data-edit]").forEach((btn) => {
+            btn.addEventListener("click", () => showFaqForm(btn.dataset.edit));
+          });
+          faqList.querySelectorAll("[data-delete]").forEach((btn) => {
+            btn.addEventListener("click", () => deleteFaq(btn.dataset.delete));
+          });
+        }
+        function showFaqForm(id = null) {
+          faqForm.classList.remove("hidden");
+          faqAddBtn.classList.add("hidden");
+          if (id) {
+            const f = faqs.find((x) => x.id == id);
+            if (!f) return;
+            faqId.value = f.id;
+            faqQuestion.value = f.question;
+            faqAnswer.value = f.answer;
+            faqCategory.value = f.category || "";
+            faqOrder.value = f.order_index ?? "";
+            faqPublished.checked = !!f.is_published;
+            faqPreview.innerHTML = marked.parse(faqAnswer.value || "");
+          } else {
+            faqId.value = "";
+            faqQuestion.value = "";
+            faqAnswer.value = "";
+            faqCategory.value = "";
+            faqOrder.value = "";
+            faqPublished.checked = true;
+            faqPreview.innerHTML = "";
+          }
+        }
+        function hideFaqForm() {
+          faqForm.classList.add("hidden");
+          faqAddBtn.classList.remove("hidden");
+        }
+        faqAddBtn.addEventListener("click", () => showFaqForm());
+        faqCancelBtn.addEventListener("click", hideFaqForm);
+        faqAnswer.addEventListener("input", () => {
+          faqPreview.innerHTML = marked.parse(faqAnswer.value || "");
         });
-
-        function showLogin() {
-          loginEl.classList.remove("hidden");
-          dashboardEl.classList.add("hidden");
+        faqForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const id = faqId.value;
+          const question = faqQuestion.value.trim();
+          const answer = faqAnswer.value.trim();
+          const category = faqCategory.value.trim();
+          const order_index = faqOrder.value ? parseInt(faqOrder.value, 10) : null;
+          const is_published = faqPublished.checked;
+          if (!question || !answer) {
+            showToast("Vyplňte otázku a odpověď");
+            return;
+          }
+          let result;
+          if (id) {
+            result = await supabase.from("faq").update({ question, answer, category, order_index, is_published }).eq("id", id);
+          } else {
+            result = await supabase.from("faq").insert([{ question, answer, category, order_index, is_published }]);
+          }
+          if (result.error) {
+            showToast("Chyba ukládání: " + result.error.message);
+            return;
+          }
+          hideFaqForm();
+          await fetchFaqs();
+          showToast("FAQ uloženo");
+        });
+        async function deleteFaq(id) {
+          if (!confirm("Opravdu smazat tuto FAQ položku?")) return;
+          const { error } = await supabase.from("faq").delete().eq("id", id);
+          if (error) {
+            showToast("Chyba mazání: " + error.message);
+            return;
+          }
+          await fetchFaqs();
+          showToast("FAQ smazáno");
         }
-
-        function showDashboard() {
-          loginEl.classList.add("hidden");
-          dashboardEl.classList.remove("hidden");
-        }
-
+        // Toast helper
         function showToast(message) {
           const toast = document.createElement("div");
           toast.textContent = message;
           toast.className = "toast";
           document.body.appendChild(toast);
-
           setTimeout(() => toast.remove(), 3000);
         }
       });
@@ -298,6 +336,26 @@ const pointMap = Object.fromEntries((points ?? []).map((p) => [p.id, p.point_nam
     .dashboard-section {
       display: grid;
       grid-template-columns: 1fr;
+      gap: 1.5em;
+    }
+    .faq-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    .faq-table th, .faq-table td {
+      border: 1px solid #eee;
+      padding: 0.5em;
+      text-align: left;
+    }
+    .faq-table th {
+      background: #f8f8f8;
+    }
+    .faq-preview {
+      background: #fafbfc;
+      min-height: 2em;
+      margin-top: 0.5em;
+    }
       gap: 24px;
       @media (min-width: 720px) {
         grid-template-columns: 1fr 1fr;

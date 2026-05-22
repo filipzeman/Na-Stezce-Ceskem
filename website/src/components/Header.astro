@@ -2,7 +2,6 @@
 import Icon from "./Icon.astro";
 import { FIRST_LEVEL_NAVIGATION } from "../constants/constants";
 import { createNavItems } from "../utils/slugify";
-import { MOBILE_HEADER_HEIGHT, DESKTOP_HEADER_HEIGHT } from "../constants/constants";
 
 const currentPath = Astro.url.pathname;
 const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
@@ -50,19 +49,13 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
   <script>
     // Mobile menu toggle
     document.addEventListener("DOMContentLoaded", () => {
-      console.log("Header script loaded");
       const toggle = document.querySelector(".menu-toggle");
       const nav = document.querySelector(".nav");
-
-      console.log("Toggle element:", toggle);
-      console.log("Nav element:", nav);
 
       if (toggle && nav) {
         toggle.addEventListener("click", (e) => {
           e.preventDefault();
-          console.log("Menu toggle clicked");
           const isOpen = nav.classList.toggle("open");
-          console.log("Menu open:", isOpen);
           toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
 
           // Visual feedback
@@ -138,15 +131,13 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
       justify-content: space-between;
       padding: 0.7rem 1.5rem;
       max-width: var(--max-width);
-      height: ${MOBILE_HEADER_HEIGHT}px;
+      height: var(--mobile-header-height);
 
       @media (min-width: 768px) {
         padding: 20px 1rem;
         flex-direction: row;
         margin: 0 auto;
-        height: ${DESKTOP_HEADER_HEIGHT}px;
-
-        height: 65px;
+        height: var(--desktop-header-height);
       }
     }
 
