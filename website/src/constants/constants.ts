@@ -9,4 +9,5 @@ export const FIRST_LEVEL_NAVIGATION: string[] = [
 ];
 
 // Header dimensions for layout calculations
-export const HEADER_HEIGHT = 65; // px - mobile header height
+export const MOBILE_HEADER_HEIGHT = 56; // px - mobile header height
+export const DESKTOP_HEADER_HEIGHT = 65; // px - desktop header height

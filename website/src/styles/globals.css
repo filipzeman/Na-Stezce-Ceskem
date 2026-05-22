@@ -1,7 +1,5 @@
-import {HEADER_HEIGHT} from './constants.js';
-
 :root {
-  --header-height: ${HEADER_HEIGHT}px;
+  --header-height: 56px;
 }
 
 * {
@@ -50,6 +48,10 @@ button,
 .cta,
 a {
   cursor: pointer;
+}
+
+p {
+  margin-bottom: 1rem;
 }
 
 /* =========================
@@ -101,7 +103,6 @@ a {
 ========================= */
 
 .btn-secondary {
-  
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -183,7 +184,9 @@ a {
   z-index: 9999;
 
   /* 👇 important */
-  transition: transform 1s ease, opacity 1s ease;
+  transition:
+    transform 1s ease,
+    opacity 1s ease;
 }
 
 /* initial state */
@@ -287,4 +290,21 @@ a {
     right: auto;
     margin: 0;
   }
+}
+
+.subtitle {
+  opacity: 0.9;
+}
+
+.intro {
+  margin-bottom: 2rem;
+}
+
+.intro p {
+  color: var(--color-text);
+  max-width: 800px;
+  /* margin-left: auto;
+  margin-right: auto; */
+  text-align: left; /* Změna na levý okraj */
+  line-height: 1.7;
 }

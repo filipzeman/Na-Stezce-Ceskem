@@ -2,7 +2,7 @@
 import Icon from "./Icon.astro";
 import { FIRST_LEVEL_NAVIGATION } from "../constants/constants";
 import { createNavItems } from "../utils/slugify";
-import { HEADER_HEIGHT } from "../constants/constants";
+import { MOBILE_HEADER_HEIGHT, DESKTOP_HEADER_HEIGHT } from "../constants/constants";
 
 const currentPath = Astro.url.pathname;
 const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
@@ -138,12 +138,14 @@ const firstLevelNavigationItems = createNavItems(FIRST_LEVEL_NAVIGATION);
       justify-content: space-between;
       padding: 0.7rem 1.5rem;
       max-width: var(--max-width);
-      height: 56px;
+      height: ${MOBILE_HEADER_HEIGHT}px;
 
       @media (min-width: 768px) {
         padding: 20px 1rem;
         flex-direction: row;
         margin: 0 auto;
+        height: ${DESKTOP_HEADER_HEIGHT}px;
+
         height: 65px;
       }
     }

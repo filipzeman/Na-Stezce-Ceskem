@@ -21,10 +21,16 @@ const filters = [
   <!-- INTRO -->
   <section class="container intro">
     <h1>Mapa</h1>
-    <p class="subtitle">
-      Zobrazte trasu a důležité body na mapě | Mapy.cz.
-      <!-- Přepínejte mezi vrstvami podle potřeby. -->
-    </p>
+    <div class="intro">
+      <p class="subtitle">
+        Zobrazte si náhled trasy a důležité body na trase. Pro zobrazení více informací o
+        jednotlivých bodech si můžete kliknout na libovolný bod a otevře se vám plná verze mapy na <a
+          href="https://mapy.cz/"
+          target="_blank">Mapy.cz</a
+        >.
+        <!-- Přepínejte mezi vrstvami podle potřeby. -->
+      </p>
+    </div>
   </section>
 
   <!-- FILTERS -->
@@ -98,7 +104,7 @@ const filters = [
     // remove from DOM after fade (optional clean)
     setTimeout(() => {
       overlay.style.display = "none";
-    }, 250);
+    }, 400);
   });
 </script>
 
@@ -167,7 +173,7 @@ const filters = [
     z-index: 10;
     cursor: pointer;
 
-    transition: opacity 0.25s ease;
+    transition: opacity 0.4s ease;
   }
 
   .map-overlay.hidden {

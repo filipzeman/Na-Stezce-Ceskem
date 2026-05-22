@@ -8,14 +8,20 @@ import { mapKey } from "../utils/mapKey.ts";
 import { groupPointsByLocation } from "../utils/groupPoints";
 import type { Point } from "../types/point";
 import Icon from "../components/Icon.astro";
-import { HEADER_HEIGHT } from "../constants/constants.ts";
+import { MOBILE_HEADER_HEIGHT, DESKTOP_HEADER_HEIGHT } from "../constants/constants";
+
 
 const supabase = getSupabase();
 let { data } = await supabase.from("points").select("*").order("km", { ascending: true });
 
 let points = data as Point[];
 
-if (!points) return null;
+if (!points) { 
+  points = [];
+  console.error("Nenalezena žádná data o bodech.");
+} else {
+  console.log(`Načteno ${points.length} bodů z databáze.`);
+}
 
 const sortedPoints = points
   .map((p) => ({
@@ -65,21 +71,27 @@ const filters = [
 
   <!-- FILTER BAR (ONLY STICKY ELEMENT) -->
   <section class="filter-bar">
-    {
-      filters.map((f) => (
-        <a
-          href={`/itinerar?filtr=${f.key}`}
-          class={`filter-icon ${(filter ?? "vse") === f.key ? "active" : ""}`}
-          aria-label={f.label}
-        >
-          <Icon name={f.icon} size={18} />
-        </a>
-      ))
-    }
+    <div class="filter-bar-inner container">
+      {
+        filters.map((f) => (
+          <a
+            href={`/itinerar?filtr=${f.key}`}
+            class={`filter-icon ${(filter ?? "vse") === f.key ? "active" : ""}`}
+            aria-label={f.label}
+          >
+            <Icon name={f.icon} size={18} />
+          </a>
+        ))
+      }
+   </div>
+    
   </section>
 
   <!-- CONTENT -->
   <section class="container points">
+    {pointsToRender.length === 0 && (
+      <p class="text-center text-muted">Bohužel nejsou k dispozici žádná data (technická chyba), prosím dejte nám o tom vědět pomocí kontaktního formuláře, moc děkujeme.</p>
+    )}
     {
       pointsToRender.map((point, index) => (
         <PointCard filter={filter} point={point} last={index === pointsToRender.length - 1} />
@@ -101,7 +113,7 @@ const filters = [
   function handleSticky() {
     const rect = filterBar.getBoundingClientRect();
 
-    if (rect.top <=65) {
+    if (rect.top <= MOBILE_HEADER_HEIGHT) {
       filterBar.classList.add("is-sticky");
     } else {
       filterBar.classList.remove("is-sticky");
@@ -248,8 +260,6 @@ const filters = [
   display: flex;
   flex-direction: column;
   gap: 8px;
-
-  margin: 12px 0;
 }
 
 .intro-text h1 {
@@ -273,19 +283,24 @@ const filters = [
   color: var(--color-text-muted);
 }
 
-  .filter-bar {
+.filter-bar {
   position: sticky;
-  top: 65px;
+  top: ${MOBILE_HEADER_HEIGHT}px;
   z-index: 30;
 
   display: flex;
   gap: 10px;
-  padding: 8px 12px;
+  padding: 0 12px;
 
   overflow-x: auto;
 
   background: var(--color-bg); /* default */
   transition: background 0.2s ease, border-color 0.2s ease;
+
+  @media (min-width: 768px) {
+    top: ${DESKTOP_HEADER_HEIGHT}px;
+    padding: 8px 12px;
+  }
 }
 
 /* sticky state */
@@ -294,9 +309,17 @@ const filters = [
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
-
 .filter-bar::-webkit-scrollbar {
     display: none;
+}
+
+.filter-bar-inner {
+  display: flex;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1rem 1rem;
+  gap:0.8rem;
+  width:100%
 }
 
   /* ICON BUTTON */
