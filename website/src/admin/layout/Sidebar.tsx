@@ -1,0 +1,92 @@
+import {
+  LayoutDashboard,
+  CircleHelp,
+  FileText,
+  Image,
+  Settings,
+  LogOut,
+} from "lucide-react";
+
+import type { AdminSection } from "../types";
+
+interface SidebarProps {
+  activeSection: AdminSection;
+
+  onChangeSection: (section: AdminSection) => void;
+}
+
+const items = [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    key: "faq",
+    label: "FAQ",
+    icon: CircleHelp,
+  },
+  {
+    key: "posts",
+    label: "Články",
+    icon: FileText,
+  },
+  {
+    key: "images",
+    label: "Obrázky",
+    icon: Image,
+  },
+  {
+    key: "settings",
+    label: "Nastavení",
+    icon: Settings,
+  },
+] satisfies {
+  key: AdminSection;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+}[];
+
+export default function Sidebar({
+  activeSection,
+  onChangeSection,
+}: SidebarProps) {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-top">
+
+        <nav className="sidebar-nav">
+          {items.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={`sidebar-link ${
+                  activeSection === item.key ? "active" : ""
+                }`}
+                onClick={() => onChangeSection(item.key)}
+              >
+                <Icon size={18} />
+
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="sidebar-bottom">
+        <button
+          type="button"
+          className="sidebar-link logout-link"
+        >
+          <LogOut size={18} />
+
+          <span>Odhlásit se</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
