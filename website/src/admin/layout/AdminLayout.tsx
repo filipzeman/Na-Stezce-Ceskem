@@ -1,35 +1,71 @@
-import type { ReactNode } from "react";
-
 import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
+import MobileNav from "./MobileNav";
+
+import FaqSection from "../sections/FAQSection";
+import PostsSection from "../sections/PostsSection";
+import SettingsSection from "../sections/SettingsSection";
 
 import type { AdminSection } from "../types";
 
 interface AdminLayoutProps {
-  children: ReactNode;
   activeSection: AdminSection;
-  onChangeSection: (section: AdminSection) => void;
+
+  onSectionChange: (
+    section: AdminSection
+  ) => void;
 }
 
 export default function AdminLayout({
-  children,
   activeSection,
-  onChangeSection,
+  onSectionChange,
 }: AdminLayoutProps) {
+  function renderSection() {
+    switch (activeSection) {
+      case "faq":
+        return <FaqSection />;
+
+      case "posts":
+        return <PostsSection />;
+
+      case "settings":
+        return <SettingsSection />;
+
+      default:
+        return <FaqSection />;
+    }
+  }
+
   return (
-    <div className="admin-layout">
-      <Sidebar
+    <>
+      {/* MOBILE NAV */}
+
+      <MobileNav
         activeSection={activeSection}
-        onChangeSection={onChangeSection}
+        onSectionChange={
+          onSectionChange
+        }
       />
 
-      <div className="admin-main">
-        <Topbar activeSection={activeSection} />
+      <div className="admin-layout">
+        {/* DESKTOP SIDEBAR */}
+
+        <aside className="admin-sidebar">
+          <Sidebar
+            activeSection={
+              activeSection
+            }
+            onSectionChange={
+              onSectionChange
+            }
+          />
+        </aside>
+
+        {/* CONTENT */}
 
         <main className="admin-content">
-          {children}
+          {renderSection()}
         </main>
       </div>
-    </div>
+    </>
   );
 }

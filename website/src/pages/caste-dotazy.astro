@@ -165,6 +165,10 @@ const faqCategories = Array.from(new Set(validFaqs.map((faq) => faq.category).fi
   .faq-section {
     padding-top: 1rem;
     margin-bottom: 1rem;
+
+    & > h2:not(:first-of-type) {
+      padding-top: 1rem;
+    }
   }
 
   .faq-section h2 {

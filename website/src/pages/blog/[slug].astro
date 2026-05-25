@@ -1,0 +1,95 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+import { marked } from "marked";
+
+import { getPostBySlug } from "../../lib/posts";
+
+const { slug } = Astro.params;
+
+const post = await getPostBySlug(slug || "");
+
+if (!post) {
+  return Astro.redirect("/404");
+}
+
+const renderedContent = marked.parse(post.content || "");
+---
+
+<BaseLayout title={post.title}>
+  <article class="container article">
+    {post.cover_image && <img src={post.cover_image} alt="" class="article-cover" />}
+
+    <header class="article-header">
+      <h1>{post.title}</h1>
+
+      {post.excerpt && <p class="article-excerpt">{post.excerpt}</p>}
+    </header>
+
+    <div class="article-content" set:html={renderedContent} />
+  </article>
+</BaseLayout>
+
+<style>
+  .article {
+    max-width: 760px;
+  }
+
+  .article-cover {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 22px;
+    margin-bottom: 2rem;
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+  }
+
+  .article-header h1 {
+    margin-bottom: 1rem;
+  }
+
+  .article-excerpt {
+    font-size: 1.05rem;
+
+    color: var(--color-text-muted);
+  }
+
+  :global(.article-content) {
+    line-height: 1.8;
+  }
+
+  :global(.article-content h2) {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  :global(.article-content p) {
+    margin-bottom: 1.2rem;
+  }
+
+  :global(.article-content ul),
+  :global(.article-content ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  :global(.article-content a) {
+    color: var(--color-primary);
+  }
+
+  :global(.article-content img) {
+    width: 100%;
+    border-radius: 16px;
+    margin: 2rem 0;
+  }
+
+  :global(.article-content blockquote) {
+    margin: 2rem 0;
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-primary);
+    color: var(--color-text-muted);
+  }
+</style>

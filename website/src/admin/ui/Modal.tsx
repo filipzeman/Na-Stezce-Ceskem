@@ -1,12 +1,10 @@
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 
 interface ModalProps {
   open: boolean;
-
   title?: string;
-
   children: ReactNode;
-
   onClose: () => void;
 }
 
@@ -17,6 +15,22 @@ export default function Modal({
   onClose,
 }: ModalProps) {
   if (!open) return null;
+
+
+  useEffect(() => {
+  if (open) {
+    document.body.style.overflow =
+      "hidden";
+  } else {
+    document.body.style.overflow =
+      "";
+  }
+
+  return () => {
+    document.body.style.overflow =
+      "";
+  };
+}, [open]);
 
   return (
     <div

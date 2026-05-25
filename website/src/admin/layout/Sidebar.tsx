@@ -11,8 +11,7 @@ import type { AdminSection } from "../types";
 
 interface SidebarProps {
   activeSection: AdminSection;
-
-  onChangeSection: (section: AdminSection) => void;
+  onSectionChange: (section: AdminSection) => void;
 }
 
 const items = [
@@ -49,7 +48,7 @@ const items = [
 
 export default function Sidebar({
   activeSection,
-  onChangeSection,
+  onSectionChange,
 }: SidebarProps) {
   return (
     <aside className="sidebar">
@@ -66,7 +65,7 @@ export default function Sidebar({
                 className={`sidebar-link ${
                   activeSection === item.key ? "active" : ""
                 }`}
-                onClick={() => onChangeSection(item.key)}
+                onClick={() => onSectionChange(item.key)}
               >
                 <Icon size={18} />
 

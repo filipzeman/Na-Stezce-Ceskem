@@ -1,32 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import AdminLayout from "./layout/AdminLayout";
-
-// import DashboardSection from "./sections/DashboardSection";
-import FAQSection from "./sections/FAQSection";
-// import PostsSection from "./sections/PostsSection";
-// import ImagesSection from "./sections/ImagesSection";
-import SettingsSection from "./sections/SettingsSection";
+import LoginForm from "./components/auth/LoginForm";
 
 import type { AdminSection } from "./types";
+import { getSession } from "./services/authService";
 
 import "./styles/admin.css";
 
 export default function AdminApp() {
-  const [activeSection, setActiveSection] =
-    useState<AdminSection>("dashboard");
+ const [session, setSession] =
+    useState<any>(null);
 
-  return (
+  const [loading, setLoading] =
+    useState(true);
+
+   const [activeSection, setActiveSection] =
+    useState<AdminSection>("faq");
+
+  async function checkSession() {
+    try {
+      const session =
+        await getSession();
+
+      setSession(session);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    checkSession();
+  }, []);
+  
+ if (loading) {
+    return (
+      <div className="admin-loading">
+        <p>Načítám administraci…</p>
+      </div>
+    );
+  }
+
+  // NOT LOGGED IN
+  if (!session) {
+    return (
+      <LoginForm
+        onSuccess={checkSession}
+      />
+    );
+  }
+
+   return (
     <AdminLayout
       activeSection={activeSection}
-      onChangeSection={setActiveSection}
-    >
-      {activeSection === "faq" && <FAQSection />}
-      {activeSection === "settings" && <SettingsSection />}
-      {/* {activeSection === "dashboard" && <DashboardSection />}
-      {activeSection === "posts" && <PostsSection />}
-      {activeSection === "images" && <ImagesSection />} */}
-    
-    </AdminLayout>
+      onSectionChange={
+        setActiveSection
+      }
+    />
   );
 }

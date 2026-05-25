@@ -7,10 +7,15 @@ import "../styles/globals.css";
 import "../styles/tokens.css";
 import "../styles/utilities.css";
 
+import { getSettingsObject } from "../lib/settings.ts";
+
+const settings = await getSettingsObject();
+
 const {
-  title = "Na Stezce | Orlické hory",
-  description = "Digitální průvodce etapou Orlické hory na Stezce Českem.",
-  image = "images/hero.jpg",
+  title = settings.title || "Na Stezce Českem | Orlické hory",
+  description = settings.description ||
+    "Digitální průvodce etapou Orlické hory - Na Stezce Českem.",
+  image = settings.image || "images/hero.jpg",
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://orlicke-hory.vercel.app");
@@ -54,7 +59,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://orlicke-
   </head>
 
   <body>
-    <Header />
+    <Header settings={settings} />
     <InstallBanner />
     <InstallModal />
     <main class="page">
