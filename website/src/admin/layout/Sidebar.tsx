@@ -14,7 +14,7 @@ interface SidebarProps {
   onSectionChange: (section: AdminSection) => void;
 }
 
-const items = [
+export const navigationItems = [
   {
     key: "dashboard",
     label: "Dashboard",
@@ -55,7 +55,7 @@ export default function Sidebar({
       <div className="sidebar-top">
 
         <nav className="sidebar-nav">
-          {items.map((item) => {
+          {navigationItems.map((item) => {
             const Icon = item.icon;
 
             return (

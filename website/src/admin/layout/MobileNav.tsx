@@ -1,9 +1,6 @@
-import {
-  FileQuestion,
-  Newspaper,
-  Settings,
-} from "lucide-react";
+
 import type { AdminSection } from "../types";
+import { navigationItems } from "./Sidebar";
 
 interface MobileNavProps {
   activeSection: AdminSection;
@@ -17,27 +14,11 @@ export default function MobileNav({
   activeSection,
   onSectionChange,
 }: MobileNavProps) {
-  const items = [
-    {
-      key: "faq",
-      label: "FAQ",
-      icon: FileQuestion,
-    },
-    {
-      key: "posts",
-      label: "Články",
-      icon: Newspaper,
-    },
-    {
-      key: "settings",
-      label: "Nastavení",
-      icon: Settings,
-    },
-  ];
+  
 
   return (
     <nav className="mobile-admin-nav">
-      {items.map((item) => {
+      {navigationItems.map((item) => {
         const Icon = item.icon;
 
         return (
@@ -54,7 +35,7 @@ export default function MobileNav({
           >
             <Icon size={18} />
 
-            <span>{item.label}</span>
+            <span className="sr-only">{item.label}</span>
           </button>
         );
       })}

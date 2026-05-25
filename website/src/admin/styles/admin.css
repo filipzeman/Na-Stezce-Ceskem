@@ -47,8 +47,6 @@
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;
-
-    padding-top: 70px;
   }
 
   .admin-sidebar {
@@ -72,24 +70,32 @@
   }
 
   .mobile-admin-link {
-    flex: 0 0 auto;
-
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--color-border);
+    justify-content: center;
+    border-radius: 10px;
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     color: var(--color-text);
-    font-size: 0.9rem;
-    transition: all 0.15s ease;
   }
 
+  /* ACTIVE */
   .mobile-admin-link.active {
     background: var(--color-primary);
-    border-color: var(--color-primary);
     color: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    svg {
+      color: var(--color-surface);
+    }
+  }
+
+  /* TOUCH */
+  .mobile-admin-link:active {
+    transform: scale(0.95);
   }
 }
 
@@ -149,7 +155,7 @@
 }
 
 .admin-content {
-  padding: 24px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -410,7 +416,7 @@
   gap: 6px;
 
   h3 {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: var(--color-text);
     margin-bottom: 0;
@@ -419,7 +425,14 @@
 
 .faq-item-actions {
   display: flex;
+  flex-wrap: wrap;
+  width: fit-content;
   gap: 8px;
+  justify-content: flex-end;
+
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+  }
 }
 
 .faq-draft {
@@ -455,9 +468,13 @@
 
 .faq-form-actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: flex-end;
 
-  gap: 10px;
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+  }
 }
 
 .settings-layout {
@@ -476,7 +493,14 @@
 
 .settings-actions {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   justify-content: flex-end;
+
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+    flex-direction: row;
+  }
 }
 
 .post-list {
@@ -510,19 +534,26 @@
 }
 
 .post-item-main h3 {
+  font-size: 1rem;
   margin: 0;
 }
 
 .post-item-main p {
   margin: 0;
-
+  font-size: 0.8rem;
   color: var(--color-text-muted);
 }
 
 .post-item-actions {
   display: flex;
-
+  flex-direction: column;
   gap: 8px;
+  justify-content: flex-end;
+
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+    flex-direction: row;
+  }
 }
 
 .post-form {
