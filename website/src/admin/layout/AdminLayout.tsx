@@ -13,11 +13,13 @@ interface AdminLayoutProps {
   onSectionChange: (
     section: AdminSection
   ) => void;
+  onLogout: () => void;
 }
 
 export default function AdminLayout({
   activeSection,
   onSectionChange,
+  onLogout,
 }: AdminLayoutProps) {
   function renderSection() {
     switch (activeSection) {
@@ -31,7 +33,7 @@ export default function AdminLayout({
         return <SettingsSection />;
 
       default:
-        return <FaqSection />;
+        return <div>In development</div>;
     }
   }
 
@@ -44,6 +46,7 @@ export default function AdminLayout({
         onSectionChange={
           onSectionChange
         }
+        onLogout={onLogout}
       />
 
       <div className="admin-layout">
@@ -57,6 +60,7 @@ export default function AdminLayout({
             onSectionChange={
               onSectionChange
             }
+            onLogout={onLogout}
           />
         </aside>
 

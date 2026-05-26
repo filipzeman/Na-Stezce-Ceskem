@@ -6,13 +6,31 @@ import PointCard from "../components/PointCard.astro";
 import { categoryMap, typeMap } from "../utils/dataMapping.ts";
 import { mapKey } from "../utils/mapKey.ts";
 import { groupPointsByLocation } from "../utils/groupPoints";
-import type { Point } from "../types/point";
+import type { Point, PointCategory } from "../types/point";
 import Icon from "../components/Icon.astro";
 
 const supabase = getSupabase();
 let { data } = await supabase.from("points").select("*").order("km", { ascending: true });
+const { data: detailsData } =
+  await supabase
+    .from("point_details")
+    .select("*");
 
-let points = data as Point[];
+const detailsMap = new Map(
+  (detailsData ?? []).map((detail) => [
+    detail.point_id,
+    detail,
+  ])
+);
+
+let points = (data as Point[]).map(
+  (point) => ({
+    ...point,
+
+    details:
+      detailsMap.get(point.id) ?? null,
+  })
+);
 
 if (!points) { 
   points = [];
@@ -24,8 +42,8 @@ if (!points) {
 const sortedPoints = points
   .map((p) => ({
     ...p,
-    categoryKey: mapKey(categoryMap, p.category),
-    typeKey: mapKey(typeMap, p.type),
+    categoryKey: mapKey(categoryMap, p.category) as PointCategory | null,
+    typeKey: mapKey(typeMap, p.type) as typeof p.type | null,
   }))
   .sort((a, b) => a.km - b.km);
 
@@ -283,20 +301,16 @@ const filters = [
 
 .filter-bar {
   position: sticky;
-  top: var(--mobile-header-height);
+  top: var(--header-height);
   z-index: 30;
-
   display: flex;
   gap: 10px;
- 
-
   overflow-x: auto;
-
   background: var(--color-bg); /* default */
   transition: background 0.2s ease, border-color 0.2s ease;
-
+  height: var(--header-height);
   @media (min-width: 768px) {
-    top: var(--desktop-header-height);
+    top: var(--header-height);
   }
 }
 
@@ -314,7 +328,6 @@ const filters = [
   display: flex;
   max-width: var(--max-width);
   margin: 0 auto;
-
   gap:0.8rem;
   width:100%;
   padding: 12px 16px;

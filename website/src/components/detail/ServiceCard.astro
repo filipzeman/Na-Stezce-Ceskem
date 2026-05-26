@@ -6,7 +6,7 @@ const { service } = Astro.props;
 const notes =
   service.note
     ?.split("-")
-    .map((n) => n.replace(/^- /, "").trim())
+    .map((n: string) => n.replace(/^- /, "").trim())
     .filter(Boolean) ?? [];
 ---
 

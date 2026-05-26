@@ -3,6 +3,7 @@ import Icon from "./Icon.astro";
 import { getPointIcons, getPointTypeIcons } from "../utils/iconMapping";
 import DetailedInfo from "./DetailedInfo.astro";
 import { slugify } from "../utils/slugify.ts";
+
 import type { Point } from "../types/point";
 import type { LocationGroup } from "../types/locationGroup";
 
@@ -13,12 +14,23 @@ const { filter, point, last } = Astro.props as {
 };
 
 const isGroup = Array.isArray((point as LocationGroup).points);
-const hasLocation = point.location_id;
+
 const isFilteredView = !!filter && filter !== "vse";
+
 const isDefaultView = !isFilteredView;
+
 const pointAsPoint = point as Point;
+
 const pointAsGroup = point as LocationGroup;
 
+/* DETAILS */
+const details = pointAsPoint.details;
+const locationId = isGroup ? pointAsGroup.location_id : details?.location_id;
+
+/* LOCATION */
+const hasLocation = !!locationId;
+
+/* ICONS */
 const icons = getPointIcons(pointAsPoint);
 
 const groupIcons = isGroup
@@ -31,33 +43,41 @@ if (!icons.length && !isGroup) {
 
 const pointTypeIcon: string = !isGroup ? icons.shift() || "" : "";
 
+/* DISPLAY */
 const displayName = isGroup
   ? pointAsGroup.location_name || pointAsGroup.points[0]?.point_name
   : pointAsPoint.point_name;
 
-const slug = isGroup || hasLocation ? pointAsGroup.location_id : slugify(pointAsPoint.point_name);
+const slug = isGroup || hasLocation ? locationId : slugify(pointAsPoint.point_name);
+console.log("isGroup", isGroup);
+console.log("hasLocation", hasLocation);
+console.log("locationId", locationId);
+console.log("Slug for point:", slug);
 
+/* NAVIGATION */
 const isNavigation = filter === "navigace" && !isGroup;
 
-// map Czech colors → UI colors
+/* MAP CZECH COLORS → UI COLORS */
 function getColor(color: string) {
   switch (color?.toLowerCase()) {
     case "červená":
       return "#c53030";
+
     case "modrá":
       return "#0469c8";
+
     case "zelená":
       return "#1d9405";
+
     case "žlutá":
       return "#e8c517";
-    // case "cyklo":
-    //   return "#f8c8dc";
+
     default:
       return "#ddd";
   }
 }
 
-// line color (only for navigation)
+/* LINE COLOR */
 const lineColor =
   isNavigation && pointAsPoint.navigation_color
     ? getColor(pointAsPoint.navigation_color)
@@ -71,8 +91,14 @@ const lineColor =
   data-lng={isGroup ? pointAsGroup.points[0]?.longitude : pointAsPoint.longitude}
 >
   <!-- KM -->
-  <div class=`km ${isNavigation ? "no-accent" : ""}`>
-    <span>{isGroup ? pointAsGroup.km : pointAsPoint.km}</span>
+  <div class=`km ${
+      isNavigation
+        ? "no-accent"
+        : ""
+    }`>
+    <span>
+      {isGroup ? pointAsGroup.km : pointAsPoint.km}
+    </span>
   </div>
 
   <!-- CONTENT -->
@@ -80,6 +106,7 @@ const lineColor =
     <a href={`/bod/${slug}`} class="name">
       {displayName}
     </a>
+
     {
       isGroup ? (
         <div class="icons-wrapper">
@@ -89,7 +116,7 @@ const lineColor =
         </div>
       ) : (
         <span class="card-header">
-          <Icon name={getPointTypeIcons(point)} size={18} notInteractive />
+          <Icon name={getPointTypeIcons(pointAsPoint)[0]} size={18} notInteractive />
         </span>
       )
     }

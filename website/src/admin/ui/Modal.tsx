@@ -43,7 +43,7 @@ export default function Modal({
           e.stopPropagation()
         }
       >
-        {(title || onClose) && (
+        {title && (
           <div className="modal-header">
             {title && <h2>{title}</h2>}
 

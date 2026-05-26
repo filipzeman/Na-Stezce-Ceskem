@@ -12,6 +12,7 @@ import type { AdminSection } from "../types";
 interface SidebarProps {
   activeSection: AdminSection;
   onSectionChange: (section: AdminSection) => void;
+  onLogout: () => void;
 }
 
 export const navigationItems = [
@@ -49,6 +50,7 @@ export const navigationItems = [
 export default function Sidebar({
   activeSection,
   onSectionChange,
+  onLogout,
 }: SidebarProps) {
   return (
     <aside className="sidebar">
@@ -80,6 +82,7 @@ export default function Sidebar({
         <button
           type="button"
           className="sidebar-link logout-link"
+          onClick={onLogout}
         >
           <LogOut size={18} />
 

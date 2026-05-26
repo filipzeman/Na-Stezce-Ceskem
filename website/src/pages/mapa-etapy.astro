@@ -73,39 +73,37 @@ const filters = [
     doprava: "https://mapy.cz/...",
   };
 
-  const frame = document.getElementById("map-frame");
-  const link = document.getElementById("map-link");
+  const frame = document.getElementById("map-frame") as HTMLIFrameElement | null;
+  const link = document.getElementById("map-link") as HTMLAnchorElement | null;
   const buttons = document.querySelectorAll(".filter");
 
   buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.map;
+    const button = btn as HTMLElement;
+    button.addEventListener("click", () => {
+      const key = button.dataset.map as keyof typeof maps;
 
       // active state
-      buttons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+      buttons.forEach((b) => (b as HTMLElement).classList.remove("active"));
+      button.classList.add("active");
 
       // update map
-      frame.src = maps[key];
-      link.href = maps[key];
+      if (frame) frame.src = maps[key];
+      if (link) link.href = maps[key];
     });
   });
-</script>
 
-<script>
-  const overlay = document.getElementById("map-overlay");
-  const frame = document.getElementById("map-frame");
+  const overlay = document.getElementById("map-overlay") as HTMLElement | null;
+  const frame2 = document.getElementById("map-frame") as HTMLIFrameElement | null;
 
-  overlay.addEventListener("click", () => {
-    frame.style.pointerEvents = "auto";
-
-    overlay.classList.add("hidden");
-
-    // remove from DOM after fade (optional clean)
-    setTimeout(() => {
-      overlay.style.display = "none";
-    }, 400);
-  });
+  if (overlay && frame2) {
+    overlay.addEventListener("click", () => {
+      frame2.style.pointerEvents = "auto";
+      overlay.classList.add("hidden");
+      setTimeout(() => {
+        overlay.style.display = "none";
+      }, 400);
+    });
+  }
 </script>
 
 <style>

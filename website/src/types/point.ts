@@ -1,3 +1,5 @@
+import type { PointDetails } from "./pointDetails";
+
 export interface Point {
   id: string;
   km: number;
@@ -38,6 +40,7 @@ export interface Point {
     | TuristicGoalTypes
     | OtherServiceTypes
     | null;
+  details?: PointDetails | null;
 }
 
 export type PointCategory =

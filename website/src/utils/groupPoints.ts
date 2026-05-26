@@ -6,8 +6,9 @@ export function groupPointsByLocation(points: Point[]): Array<Point | LocationGr
   const singles: Point[] = [];
 
   for (const point of points) {
-    const locationId = point.location_id?.trim();
-    const locationName = point.location_name?.trim();
+    const details = point.details;
+    const locationId = details?.location_id?.trim();
+    const locationName = details?.location_name?.trim();
 
     if (locationId && locationName) {
       if (!groups[locationId]) {
