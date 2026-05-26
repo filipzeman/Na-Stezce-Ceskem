@@ -63,6 +63,8 @@
     overflow-x: auto;
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
+    align-items: center;
+    height: var(--header-height);
   }
 
   .mobile-admin-nav::-webkit-scrollbar {
@@ -79,6 +81,7 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     color: var(--color-text);
+    flex-shrink: 0;
   }
 
   /* ACTIVE */

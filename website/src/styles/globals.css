@@ -1,6 +1,5 @@
 :root {
-  --mobile-header-height: 56px;
-  --desktop-header-height: 65px;
+  --header-height: 65px;
 }
 
 * {

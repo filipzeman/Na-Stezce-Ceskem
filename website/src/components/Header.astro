@@ -11,8 +11,6 @@ interface Props {
 }
 
 const { settings } = Astro.props as Props;
-
-console.log("Header settings:", settings);
 ---
 
 <header class="header">
@@ -139,13 +137,12 @@ console.log("Header settings:", settings);
       justify-content: space-between;
       padding: 0.7rem 1rem;
       max-width: var(--max-width);
-      height: var(--mobile-header-height);
+      height: var(--header-height);
 
       @media (min-width: 768px) {
         padding: 20px 1rem;
         flex-direction: row;
         margin: 0 auto;
-        height: var(--desktop-header-height);
       }
     }
 

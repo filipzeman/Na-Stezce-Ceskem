@@ -21,7 +21,7 @@
 <style>
   .install-banner {
     position: fixed
-    top: var(--header-height, 56px);
+    top: var(--header-height);
     left: 0;
     right: 0;
     background: var(--color-primary);
@@ -33,13 +33,7 @@
     line-height: 1.4;
     width: 100%;
   }
-
-  @media (min-width: 768px) {
-    .install-banner {
-      top: var(--header-height-desktop, 66px);
-    }
-  }
-
+  
   .banner-content {
     display: flex;
     align-items: center;
