@@ -2,6 +2,7 @@ import Sidebar from "./Sidebar";
 import MobileNav from "./MobileNav";
 
 import FaqSection from "../sections/FAQSection";
+import PointsSection from "../sections/PointsSection";
 import PostsSection from "../sections/PostsSection";
 import SettingsSection from "../sections/SettingsSection";
 
@@ -10,9 +11,7 @@ import type { AdminSection } from "../types";
 interface AdminLayoutProps {
   activeSection: AdminSection;
 
-  onSectionChange: (
-    section: AdminSection
-  ) => void;
+  onSectionChange: (section: AdminSection) => void;
   onLogout: () => void;
 }
 
@@ -32,6 +31,9 @@ export default function AdminLayout({
       case "settings":
         return <SettingsSection />;
 
+      case "points":
+        return <PointsSection />;
+
       default:
         return <div>In development</div>;
     }
@@ -43,9 +45,7 @@ export default function AdminLayout({
 
       <MobileNav
         activeSection={activeSection}
-        onSectionChange={
-          onSectionChange
-        }
+        onSectionChange={onSectionChange}
         onLogout={onLogout}
       />
 
@@ -54,21 +54,15 @@ export default function AdminLayout({
 
         <aside className="admin-sidebar">
           <Sidebar
-            activeSection={
-              activeSection
-            }
-            onSectionChange={
-              onSectionChange
-            }
+            activeSection={activeSection}
+            onSectionChange={onSectionChange}
             onLogout={onLogout}
           />
         </aside>
 
         {/* CONTENT */}
 
-        <main className="admin-content">
-          {renderSection()}
-        </main>
+        <main className="admin-content">{renderSection()}</main>
       </div>
     </>
   );

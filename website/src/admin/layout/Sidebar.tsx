@@ -5,6 +5,7 @@ import {
   Image,
   Settings,
   LogOut,
+  Signpost,
 } from "lucide-react";
 
 import type { AdminSection } from "../types";
@@ -27,6 +28,11 @@ export const navigationItems = [
     icon: CircleHelp,
   },
   {
+    key: "points",
+    label: "Body",
+    icon: Signpost,
+  },
+  {
     key: "posts",
     label: "Články",
     icon: FileText,
@@ -47,15 +53,10 @@ export const navigationItems = [
   icon: React.ComponentType<{ size?: number }>;
 }[];
 
-export default function Sidebar({
-  activeSection,
-  onSectionChange,
-  onLogout,
-}: SidebarProps) {
+export default function Sidebar({ activeSection, onSectionChange, onLogout }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
-
         <nav className="sidebar-nav">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -64,9 +65,7 @@ export default function Sidebar({
               <button
                 key={item.key}
                 type="button"
-                className={`sidebar-link ${
-                  activeSection === item.key ? "active" : ""
-                }`}
+                className={`sidebar-link ${activeSection === item.key ? "active" : ""}`}
                 onClick={() => onSectionChange(item.key)}
               >
                 <Icon size={18} />
@@ -79,11 +78,7 @@ export default function Sidebar({
       </div>
 
       <div className="sidebar-bottom">
-        <button
-          type="button"
-          className="sidebar-link logout-link"
-          onClick={onLogout}
-        >
+        <button type="button" className="sidebar-link logout-link" onClick={onLogout}>
           <LogOut size={18} />
 
           <span>Odhlásit se</span>

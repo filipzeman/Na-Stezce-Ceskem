@@ -8,6 +8,4 @@ export interface PointDetails {
   images?: string[];
   hikers_welcome?: boolean | null;
   active: boolean;
-  location_id?: string | null;
-  location_name?: string | null;
 }

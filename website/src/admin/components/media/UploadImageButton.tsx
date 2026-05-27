@@ -39,6 +39,8 @@ export default function UploadImageButton({
           folder
         );
 
+        console.log('uploaded object:', uploaded);
+
       onUploaded(uploaded);
     } catch (err) {
       console.error(err);
@@ -52,19 +54,30 @@ export default function UploadImageButton({
   }
 
   return (
-    <label>
-      <input
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={handleChange}
-      />
+  <div>
+    <input
+      id="image-upload"
+      type="file"
+      accept="image/*"
+      hidden
+      onChange={handleChange}
+    />
 
-      <Button disabled={loading}>
-        {loading
-          ? "Nahrávám..."
-          : "Nahrát obrázek"}
-      </Button>
-    </label>
-  );
+    <Button
+      type="button"
+      disabled={loading}
+      onClick={() => {
+        document
+          .getElementById(
+            "image-upload"
+          )
+          ?.click();
+      }}
+    >
+      {loading
+        ? "Nahrávám..."
+        : "Nahrát obrázek"}
+    </Button>
+  </div>
+);
 }
