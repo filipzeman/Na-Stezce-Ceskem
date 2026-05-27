@@ -14,6 +14,8 @@ import type { PointDetails } from "../../types/pointDetails";
 
 import type { UploadedImage } from "../services/mediaService";
 
+import { normalizeText } from "../../utils/text";
+
 export default function PointsSection() {
   const [points, setPoints] = useState<Point[]>([]);
 
@@ -72,7 +74,9 @@ export default function PointsSection() {
   }, [selectedPoint]);
 
   const filteredPoints = useMemo(() => {
-    return points.filter((point) => point.point_name?.toLowerCase().includes(search.toLowerCase()));
+    return points.filter((point) =>
+      normalizeText(point.point_name).includes(normalizeText(search))
+    );
   }, [points, search]);
 
   async function handleSave() {
