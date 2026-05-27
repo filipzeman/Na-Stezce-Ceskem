@@ -25,7 +25,7 @@ const pointAsGroup = point as LocationGroup;
 
 /* DETAILS */
 const details = pointAsPoint.details;
-const locationId = isGroup ? pointAsGroup.location_id : details?.location_id;
+const locationId = isGroup ? pointAsGroup.location_id : pointAsPoint.location_id;
 
 /* LOCATION */
 const hasLocation = !!locationId;
