@@ -31,17 +31,44 @@ const normalized = points.map((p) => ({
   typeKey: mapKey(typeMap, p.type),
 }));
 
+console.log(
+  "Normalized points:",
+  normalized.filter((item) => item.location_id)
+);
+
 const normalize = (v: string | undefined) => v?.toLowerCase().replace(/_/g, "-");
 
-const locationPoints = normalized.filter((p) => {
-  // grouped
-  if (p.location_id) {
-    return normalize(p.location_id) === normalize(slug);
-  }
+const pointIdMatch = slug?.match(/^(\d+)/);
 
-  // standalone (match slugified name)
-  return slugify(p.point_name) === slug;
-});
+console.log("point id", points[0].id);
+
+let locationPoints = [];
+
+if (pointIdMatch) {
+  // standalone point
+
+  const pointId = `pt_${pointIdMatch[1]}`;
+
+  const point = normalized.find((p) => p.id === pointId);
+
+  locationPoints = point ? [point] : [];
+} else {
+  // grouped location
+
+  locationPoints = normalized.filter(
+    (p) => p.location_id && normalize(p.location_id) === normalize(slug)
+  );
+}
+
+console.log(
+  locationPoints.map((p) => ({
+    id: p.id,
+
+    point_name: p.point_name,
+
+    location_id: p.location_id,
+  }))
+);
 
 // 5.1 collect point IDs for images
 const pointIds = locationPoints.map((p) => p.id);

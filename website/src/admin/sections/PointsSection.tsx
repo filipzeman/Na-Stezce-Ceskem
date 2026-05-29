@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
-import Card from "../ui/Card.tsx";
+import Card from "../ui/Card";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
 import ImageGalleryField from "../components/media/ImageGalleryField";
+
+import PointPickerModal from "../components/points/PointPickerModal";
 
 import { getPoints, getPointDetails, savePointDetails } from "../services/pointDetailsService";
 
@@ -25,6 +27,12 @@ export default function PointsSection() {
 
   const [search, setSearch] = useState("");
 
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const [saving, setSaving] = useState(false);
+
+  const [saved, setSaved] = useState(false);
+
   useEffect(() => {
     async function load() {
       try {
@@ -44,10 +52,10 @@ export default function PointsSection() {
 
     async function loadDetails() {
       try {
-        const data = await getPointDetails(selectedPoint.id);
+        const data = await getPointDetails(selectedPoint?.id);
 
         setDetails({
-          point_id: selectedPoint.id,
+          point_id: selectedPoint?.id,
 
           phone: data?.phone || "",
 
@@ -83,162 +91,166 @@ export default function PointsSection() {
     if (!details) return;
 
     try {
+      setSaving(true);
+      setSaved(false);
+
       await savePointDetails(details);
 
-      alert("Uloženo");
+      setSaved(true);
+
+      setTimeout(() => {
+        setSaved(false);
+      }, 2000);
     } catch (err) {
       console.error(err);
-
-      alert("Nepodařilo se uložit");
+    } finally {
+      setSaving(false);
     }
   }
-
   return (
-    <div className="points-layout">
-      {/* LEFT */}
+    <div className="points-content">
+      {/* SELECTOR */}
 
-      <Card title="Body">
-        <div className="points-sidebar">
-          <Input
-            placeholder="Hledat bod..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="points-selector">
+        <Card title="Body na trase">
+          <div className="points-sidebar">
+            <Input
+              placeholder="Zadejte nebo vyberte z nabídky..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
-          <div className="points-list">
-            {filteredPoints.map((point) => (
-              <button
-                key={point.id}
-                className={`point-item ${selectedPoint?.id === point.id ? "active" : ""}`}
-                onClick={() => setSelectedPoint(point)}
-              >
-                <span>{point.point_name}</span>
+            <div className="points-list">
+              {filteredPoints.map((point) => (
+                <button
+                  key={point.id}
+                  className={`point-item ${selectedPoint?.id === point.id ? "active" : ""}`}
+                  onClick={() => setSelectedPoint(point)}
+                >
+                  <span>{point.point_name}</span>
 
-                <small>{point.km} km</small>
-              </button>
-            ))}
+                  <small>{point.km} km</small>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
 
-      {/* RIGHT */}
+      {/* EDITOR */}
 
-      <div>
+      <div className="points-editor">
         {selectedPoint && details && (
           <Card title={selectedPoint.point_name}>
             <div className="settings-form">
-              {/* CONTACT */}
-
-              <Input
-                label="Telefon"
-                value={details.phone || ""}
-                onChange={(e) =>
-                  setDetails({
-                    ...details,
-                    phone: e.target.value,
-                  })
-                }
-              />
-
-              <Input
-                label="Email"
-                value={details.email || ""}
-                onChange={(e) =>
-                  setDetails({
-                    ...details,
-                    email: e.target.value,
-                  })
-                }
-              />
-
-              <Input
-                label="Web"
-                value={details.website || ""}
-                onChange={(e) =>
-                  setDetails({
-                    ...details,
-                    website: e.target.value,
-                  })
-                }
-              />
-
-              {/* INFO */}
-
-              <div className="input-group">
-                <label className="input-label">Otevírací doba</label>
-
-                <textarea
-                  className="textarea"
-                  value={details.opening_info || ""}
+              <div className="settings-form">
+                <Input
+                  label="Telefon"
+                  value={details.phone || ""}
                   onChange={(e) =>
                     setDetails({
                       ...details,
-                      opening_info: e.target.value,
+                      phone: e.target.value,
                     })
                   }
                 />
-              </div>
 
-              <div className="input-group">
-                <label className="input-label">Poznámka</label>
-
-                <textarea
-                  className="textarea"
-                  value={details.note || ""}
+                <Input
+                  label="Email"
+                  value={details.email || ""}
                   onChange={(e) =>
                     setDetails({
                       ...details,
-                      note: e.target.value,
+                      email: e.target.value,
                     })
                   }
                 />
-              </div>
 
-              {/* SETTINGS */}
-
-              <label className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={details.active}
+                <Input
+                  label="Web"
+                  value={details.website || ""}
                   onChange={(e) =>
                     setDetails({
                       ...details,
-                      active: e.target.checked,
+                      website: e.target.value,
                     })
                   }
                 />
-                Aktivní
-              </label>
 
-              <label className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={details.hikers_welcome || false}
-                  onChange={(e) =>
+                <div className="input-group">
+                  <label className="input-label">Otevírací doba</label>
+
+                  <textarea
+                    className="textarea"
+                    value={details.opening_info || ""}
+                    onChange={(e) =>
+                      setDetails({
+                        ...details,
+                        opening_info: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label className="input-label">Poznámka</label>
+
+                  <textarea
+                    className="textarea"
+                    value={details.note || ""}
+                    onChange={(e) =>
+                      setDetails({
+                        ...details,
+                        note: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <label className="checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={details.active}
+                    onChange={(e) =>
+                      setDetails({
+                        ...details,
+                        active: e.target.checked,
+                      })
+                    }
+                  />
+                  Aktivní
+                </label>
+
+                <label className="checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={details.hikers_welcome || false}
+                    onChange={(e) =>
+                      setDetails({
+                        ...details,
+                        hikers_welcome: e.target.checked,
+                      })
+                    }
+                  />
+                  Hikers welcome
+                </label>
+
+                <ImageGalleryField
+                  folder={`points/${selectedPoint.id}`}
+                  value={(details.images || []) as UploadedImage[]}
+                  onChange={(images) =>
                     setDetails({
                       ...details,
-                      hikers_welcome: e.target.checked,
+                      images,
                     })
                   }
                 />
-                Hikers welcome
-              </label>
 
-              {/* IMAGES */}
-
-              <ImageGalleryField
-                folder={`points/${selectedPoint.id}`}
-                value={(details.images || []) as UploadedImage[]}
-                onChange={(images) =>
-                  setDetails({
-                    ...details,
-                    images,
-                  })
-                }
-              />
-
-              <div className="settings-actions">
-                <Button onClick={handleSave}>Uložit</Button>
+                <div className="settings-actions">
+                  <Button disabled={saving} onClick={handleSave}>
+                    {saving ? "Ukládám..." : saved ? "Uloženo" : "Uložit"}
+                  </Button>
+                </div>
               </div>
             </div>
           </Card>

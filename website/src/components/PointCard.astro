@@ -2,7 +2,7 @@
 import Icon from "./Icon.astro";
 import { getPointIcons, getPointTypeIcons } from "../utils/iconMapping";
 import DetailedInfo from "./DetailedInfo.astro";
-import { slugify } from "../utils/slugify.ts";
+import { getPointSlug } from "../utils/getPointsSlug";
 
 import type { Point } from "../types/point";
 import type { LocationGroup } from "../types/locationGroup";
@@ -48,11 +48,7 @@ const displayName = isGroup
   ? pointAsGroup.location_name || pointAsGroup.points[0]?.point_name
   : pointAsPoint.point_name;
 
-const slug = isGroup || hasLocation ? locationId : slugify(pointAsPoint.point_name);
-console.log("isGroup", isGroup);
-console.log("hasLocation", hasLocation);
-console.log("locationId", locationId);
-console.log("Slug for point:", slug);
+const slug = isGroup ? pointAsGroup.location_id : getPointSlug(pointAsPoint);
 
 /* NAVIGATION */
 const isNavigation = filter === "navigace" && !isGroup;
