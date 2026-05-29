@@ -35,7 +35,7 @@ export default function AdminLayout({
         return <PointsSection />;
 
       default:
-        return <div>In development</div>;
+        return <PointsSection />;
     }
   }
 
