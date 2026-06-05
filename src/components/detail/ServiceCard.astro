@@ -8,6 +8,8 @@ const notes =
     ?.split("-")
     .map((n: string) => n.replace(/^- /, "").trim())
     .filter(Boolean) ?? [];
+
+console.log("notes", notes);
 ---
 
 <div class="card">

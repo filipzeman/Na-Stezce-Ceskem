@@ -140,7 +140,7 @@ export default function PointsSection() {
       {/* EDITOR */}
 
       <div className="points-editor">
-        {selectedPoint && details && (
+        {selectedPoint && details ? (
           <Card title={selectedPoint.point_name}>
             <div className="settings-form">
               <div className="settings-form">
@@ -252,6 +252,20 @@ export default function PointsSection() {
                   </Button>
                 </div>
               </div>
+            </div>
+          </Card>
+        ) : (
+          <Card title="Správa bodů">
+            <div className="empty-state">
+              <p className="no-vertical-spacing">
+                Vyberte bod ze seznamu vlevo nebo jej vyhledejte.
+              </p>
+              <ul>
+                <li>Kontakty</li>
+                <li>Otevírací doba</li>
+                <li>Poznámky</li>
+                <li>Fotografie</li>
+              </ul>
             </div>
           </Card>
         )}

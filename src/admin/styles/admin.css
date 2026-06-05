@@ -719,6 +719,13 @@
   background: var(--color-surface-secondary);
 }
 
+.no-vertical-spacing {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 8px;
+  padding-bottom: 10px;
+}
+
 @media (max-width: 1100px) {
   .points-content {
     grid-template-columns: 1fr;
