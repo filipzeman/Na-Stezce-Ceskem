@@ -7,24 +7,22 @@ import type { AdminSection } from "./types";
 import { getSession, logout } from "./services/authService";
 
 import "./styles/admin.css";
+import { isAdmin } from "./utils/isAdmin";
 
 export default function AdminApp() {
- const [session, setSession] =
-    useState<any>(null);
+  const [session, setSession] = useState<any>(null);
 
-   const [activeSection, setActiveSection] =
-    useState<AdminSection>("faq");
+  const [activeSection, setActiveSection] = useState<AdminSection>("faq");
 
-    async function handleLogout() {
-      logout();
+  async function handleLogout() {
+    logout();
 
-      setSession(null);
-    }
+    setSession(null);
+  }
 
   async function checkSession() {
     try {
-      const session =
-        await getSession();
+      const session = await getSession();
 
       setSession(session);
     } catch (err) {
@@ -37,20 +35,23 @@ export default function AdminApp() {
   }, []);
 
   // NOT LOGGED IN
+
   if (!session) {
-    return (
-      <LoginForm
-        onSuccess={checkSession}
-      />
-    );
+    return <LoginForm onSuccess={checkSession} />;
   }
 
-   return (
+  if (session && !isAdmin(session.user.email)) {
+    logout();
+
+    setSession(null);
+
+    return;
+  }
+
+  return (
     <AdminLayout
       activeSection={activeSection}
-      onSectionChange={
-        setActiveSection
-      }
+      onSectionChange={setActiveSection}
       onLogout={handleLogout}
     />
   );

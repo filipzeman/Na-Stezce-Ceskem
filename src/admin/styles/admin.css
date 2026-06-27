@@ -654,7 +654,7 @@
 
 .points-content {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 400px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -734,4 +734,30 @@
   .points-list {
     max-height: 240px;
   }
+}
+
+.settings-subtitle {
+  margin-top: 1rem;
+
+  margin-bottom: 0.75rem;
+
+  font-size: 1.2rem;
+
+  font-weight: 600;
+
+  color: var(--color-text-secondary);
+}
+
+.select {
+  width: 100%;
+
+  padding: 0.75rem;
+
+  border: 1px solid var(--color-border);
+
+  border-radius: 12px;
+
+  background: var(--color-surface);
+
+  color: var(--color-text);
 }
