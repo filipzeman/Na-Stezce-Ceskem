@@ -13,8 +13,10 @@ import Icon from "../components/Icon.astro";
         <h1>Na Stezce Českem | Orlické hory</h1>
 
         <p class="subtitle">Naplánuj si přechod podle skutečných bodů na trase.</p>
-
-        <a href="/itinerar" class="btn btn-primary"> Zobrazit itinerář</a>
+        <div class="actions-wrapper">
+          <a href="/itinerar" class="btn btn-primary"> Zobrazit itinerář</a>
+          <a href="/mapa-etapy" class="btn btn-secondary"> Zobrazit mapu</a>
+        </div>
       </div>
     </section>
 
@@ -134,6 +136,13 @@ import Icon from "../components/Icon.astro";
     text-align: center;
     color: white;
     max-width: 600px;
+  }
+
+  .actions-wrapper {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .hero h1 {

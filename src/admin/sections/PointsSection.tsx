@@ -8,6 +8,9 @@ import ImageGalleryField from "../components/media/ImageGalleryField";
 
 // 'import PointPickerModal from "../components/points/PointPickerModal";'
 import { categoryLookup } from "../config/categoryLookup";
+import { pointMetadata } from "../../config/pointMetadata";
+
+import { getCategoryKey, getTypeKey } from "../../utils/pointMetadata";
 
 import { getPoints, getPointDetails, savePointDetails } from "../services/pointDetailsService";
 import { updatePoint } from "../services/pointService";
@@ -18,19 +21,13 @@ import type { Point } from "../../types/point";
 import type { PointDetails } from "../../types/pointDetails";
 
 import type { UploadedImage } from "../services/mediaService";
+import { toUploadedImage } from "../services/mediaService";
 
 import { normalizeText } from "../../utils/text";
 
 type PointDetailsEditor = Omit<PointDetails, "images"> & {
   images: UploadedImage[];
 };
-
-function toUploadedImage(image: string): UploadedImage {
-  return {
-    path: image,
-    publicUrl: image,
-  };
-}
 
 export default function PointsSection() {
   const [points, setPoints] = useState<Point[]>([]);
@@ -49,16 +46,20 @@ export default function PointsSection() {
 
   const [saved, setSaved] = useState(false);
 
-  const categoryKey = editedPoint
-    ? categoryLookup[editedPoint.category as keyof typeof categoryLookup]
-    : undefined;
+  const categoryKey = editedPoint?.category;
 
   useEffect(() => {
     async function load() {
       try {
         const data = await getPoints();
 
-        setPoints(data);
+        const normalized = data.map((point) => ({
+          ...point,
+          category: getCategoryKey(point.category) as Point["category"],
+          type: getTypeKey(point.type) as Point["type"],
+        }));
+
+        setPoints(normalized);
       } catch (err) {
         console.error(err);
       }
@@ -109,19 +110,32 @@ export default function PointsSection() {
     );
   }, [points, search]);
 
-  const categories = useMemo(() => [...new Set(points.map((p) => p.category))].sort(), [points]);
-
-  console.log("categories", categories);
-  console.log("editedPoint?.category", editedPoint?.category);
+  const categories = Object.keys(pointMetadata.categories);
 
   const availableTypes = categoryKey ? categoryTypes[categoryKey] : [];
 
   function updateEditedPoint<K extends keyof Point>(key: K, value: Point[K]) {
-    if (!editedPoint) return;
+    setEditedPoint((prev) => {
+      if (!prev) return prev;
 
-    setEditedPoint({
-      ...editedPoint,
-      [key]: value,
+      return {
+        ...prev,
+        [key]: value,
+      };
+    });
+  }
+
+  function updateCategory(category: Point["category"]) {
+    const firstType = categoryTypes[category]?.[0];
+
+    setEditedPoint((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        category,
+        type: firstType ?? prev.type,
+      };
     });
   }
 
@@ -149,6 +163,8 @@ export default function PointsSection() {
       setSaving(false);
     }
   }
+
+  console.log("editedPoint.category =", editedPoint?.category);
   return (
     <div className="points-content">
       {/* SELECTOR */}
@@ -192,6 +208,11 @@ export default function PointsSection() {
           <Card title={selectedPoint.point_name}>
             <div className="settings-form">
               <h3 className="settings-subtitle">Základní údaje</h3>
+              <div className="settings-actions">
+                <Button disabled={saving} onClick={handleSave}>
+                  {saving ? "Ukládám..." : saved ? "Uloženo" : "Uložit"}
+                </Button>
+              </div>
 
               <Input
                 label="Název"
@@ -205,21 +226,14 @@ export default function PointsSection() {
                 <select
                   className="select"
                   value={editedPoint?.category ?? ""}
-                  onChange={(e) => {
-                    const category = e.target.value as Point["category"];
-
-                    updateEditedPoint("category", category);
-
-                    const firstType = categoryTypes[category]?.[0];
-
-                    if (firstType) {
-                      updateEditedPoint("type", firstType);
-                    }
-                  }}
+                  onChange={(e) => updateCategory(e.target.value as Point["category"])}
                 >
                   {categories.map((category) => (
                     <option key={category} value={category}>
-                      {category}
+                      {
+                        pointMetadata.categories[category as keyof typeof pointMetadata.categories]
+                          .label
+                      }
                     </option>
                   ))}
                 </select>
@@ -233,11 +247,16 @@ export default function PointsSection() {
                   value={editedPoint?.type ?? ""}
                   onChange={(e) => updateEditedPoint("type", e.target.value as Point["type"])}
                 >
-                  {availableTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
+                  {availableTypes.map((type) => {
+                    // console.log("available type", type);
+
+                    return (
+                      <option key={type} value={type}>
+                        {pointMetadata.types[type as keyof typeof pointMetadata.types]?.label ??
+                          type}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 

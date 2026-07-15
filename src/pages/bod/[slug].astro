@@ -12,6 +12,20 @@ const supabase = getSupabase();
 import { categoryMap, typeMap } from "../../utils/dataMapping";
 import { slugify } from "../../utils/slugify";
 
+const IMAGES_BUCKET = "images";
+
+function toPublicImageUrl(image: string): string {
+  if (/^https?:\/\//i.test(image)) {
+    return image;
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(IMAGES_BUCKET).getPublicUrl(image.replace(/^\/+/, ""));
+
+  return publicUrl;
+}
+
 // 1. get slug from URL
 const { slug } = Astro.params;
 
@@ -40,8 +54,6 @@ console.log(
 const normalize = (v: string | undefined) => v?.toLowerCase().replace(/_/g, "-");
 
 const pointIdMatch = slug?.match(/^(\d+)/);
-
-console.log("point id", points[0].id);
 
 let locationPoints = [];
 
@@ -83,9 +95,12 @@ const { data: imagesData } = await supabase
 
 console.log("Fetched images:", imagesData?.length ? imagesData : "No images");
 
-const imageUrls = imagesData?.flatMap(
-  (detail) => detail.images?.map((image) => image.publicUrl) || []
-);
+const imageUrls =
+  imagesData?.flatMap(
+    (detail) => detail.images?.map((image: string) => toPublicImageUrl(image)) || []
+  ) || [];
+
+console.log("imageUrls:", imageUrls?.length ? imageUrls : "No image URLs");
 
 // 5. get location info
 const location = locationPoints[0] ?? null;

@@ -32,6 +32,7 @@ const hasLocation = !!locationId;
 
 /* ICONS */
 const icons = getPointIcons(pointAsPoint);
+// console.log("Icons for point %s: %o", pointAsPoint.point_name, icons);
 
 const groupIcons = isGroup
   ? Array.from(new Set(pointAsGroup.points.flatMap((p) => getPointTypeIcons(p))))
